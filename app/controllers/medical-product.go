@@ -3,8 +3,6 @@ package controllers
 import (
 	"backend/app/models"
 	"backend/database"
-	"backend/pkg/utils"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -18,36 +16,56 @@ func GetMedicinalProductList(ctx *fiber.Ctx) error {
 		})
 	}
 
+	data, err := database.GetMedicinalProduct(getMedicinalProduct)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"msg":     err,
+		})
+	}
+
 	return ctx.Status(200).JSON(fiber.Map{
-		"success": true,
-		"message": nil,
+		"limit":   getMedicinalProduct.Limit,
+		"offset":  getMedicinalProduct.Offset,
+		"hasNext": "",
+		"data":    data,
 	})
 }
 
 func CreateMedicinalProduct(ctx *fiber.Ctx) error {
-	medicinalProduct := &models.CreateMedicinalProduct{}
+	req := &models.CreateMedicinalProduct{}
 
-	if err := ctx.BodyParser(medicinalProduct); err != nil {
+	if err := ctx.BodyParser(req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
 			"message": err.Error(),
 		})
 	}
 
-	fmt.Println(medicinalProduct)
+	medicinalProduct := &models.MedicinalProduct{}
 
-	new := &models.MedicinalProduct{Name: "medicinalProduct", Description: "medicinalProduct"}
+	medicinalProduct.Name = req.Name
+	medicinalProduct.Description = req.Description
+	medicinalProduct.MaxQuantity = req.MaxQuantity
 
-	result := database.GetDB().Create(new)
-	if result.Error != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	if req.Quantity != nil {
+		medicinalProduct.Quantity = *req.Quantity
+	} else {
+		medicinalProduct.Quantity = req.MaxQuantity
+	}
+
+	err := database.CreateMedicinalProduct(medicinalProduct)
+
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
-			"msg":     utils.ValidatorErrors(result.Error),
+			"msg":     err.Error(),
 		})
 	}
 
 	return ctx.Status(200).JSON(fiber.Map{
-		"success": true,
-		"message": nil,
+		"success":          true,
+		"message":          nil,
+		"medicinalProduct": medicinalProduct,
 	})
 }

@@ -1,13 +1,19 @@
 package database
 
-import "backend/app/models"
+import (
+	"backend/app/models"
+)
 
-func GetMedicinalProduct() {
-	medicinalProduct := models.MedicinalProduct{
-		Id:          1,
-		Name:        "Medical Product",
-		Description: "Description",
-	}
+func GetMedicinalProduct(filters *models.GetMedicinalProduct) ([]models.MedicinalProduct, error) {
+	var medicinalProduct []models.MedicinalProduct
 
-	GetDB().Find(&medicinalProduct)
+	result := GetDB().Limit(filters.Limit + 1).Offset(filters.Offset).Find(&medicinalProduct)
+
+	return medicinalProduct, result.Error
+}
+
+func CreateMedicinalProduct(medProduct *models.MedicinalProduct) error {
+	result := GetDB().Create(&medProduct)
+
+	return result.Error
 }
