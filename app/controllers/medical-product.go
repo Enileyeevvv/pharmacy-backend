@@ -3,6 +3,8 @@ package controllers
 import (
 	"backend/app/models"
 	"backend/database"
+	"backend/pkg/utils"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -32,7 +34,17 @@ func CreateMedicinalProduct(ctx *fiber.Ctx) error {
 		})
 	}
 
-	database.GetDB().Create(medicinalProduct)
+	fmt.Println(medicinalProduct)
+
+	new := &models.MedicinalProduct{Name: "medicinalProduct", Description: "medicinalProduct"}
+
+	result := database.GetDB().Create(new)
+	if result.Error != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"msg":     utils.ValidatorErrors(result.Error),
+		})
+	}
 
 	return ctx.Status(200).JSON(fiber.Map{
 		"success": true,
