@@ -10,6 +10,8 @@ func PrivateRoutes(a *fiber.App) {
 
 	medProductRoutes := v1.Group("/medicinal_product")
 
-	medProductRoutes.Get("/list", controllers.GetMedicinalProductList)
-	medProductRoutes.Post("/create", controllers.CreateMedicinalProduct)
+	medProductRoutes.Get("/", controllers.GetMedicinalProductList)
+	medProductRoutes.Post("/", controllers.CreateMedicinalProduct)
+	medProductRoutes.Patch("/", controllers.UpdateMedicinalProduct)
+	medProductRoutes.Delete("/", controllers.DeleteMedicinalProduct)
 }

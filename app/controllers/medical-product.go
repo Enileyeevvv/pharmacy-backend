@@ -69,3 +69,17 @@ func CreateMedicinalProduct(ctx *fiber.Ctx) error {
 		"medicinalProduct": medicinalProduct,
 	})
 }
+
+func UpdateMedicinalProduct(ctx *fiber.Ctx) error {
+	return ctx.Status(200).JSON(fiber.Map{
+		"success": true,
+		"message": nil,
+	})
+}
+
+func DeleteMedicinalProduct(ctx *fiber.Ctx) error {
+	return ctx.Status(200).JSON(fiber.Map{
+		"success": true,
+		"message": nil,
+	})
+}
