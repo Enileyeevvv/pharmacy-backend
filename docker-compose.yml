@@ -24,20 +24,21 @@ services:
     networks:
       pharmacy-nw:
 
-  minio:
-    image: minio/minio
-    container_name: minio
-    restart: always
-    volumes:
-      - minio-data:/data
-    networks:
-      pharmacy-nw:
+#  minio:
+#    image: quay.io/minio/minio
+#    container_name: minio
+#    command: minio server
+#    restart: always
+#    volumes:
+#      - minio-data:/data
+#    networks:
+#      pharmacy-nw:
 
   pharmacy-service:
     depends_on:
       - db
       - redis
-      - minio
+#      - minio
     build:
       context: ./pharmacy-service
       dockerfile: Dockerfile
@@ -48,7 +49,7 @@ services:
 
 volumes:
   db-data:
-  minio-data:
+#  minio-data:
 
 networks:
   pharmacy-nw:
