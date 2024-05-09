@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: postgres
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      pharmacy-nw:
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      pharmacy-nw:
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    volumes:
+      - minio-data:/data
+    networks:
+      pharmacy-nw:
+
+  pharmacy-service:
+    depends_on:
+      - db
+      - redis
+      - minio
+    build:
+      context: ./pharmacy-service
+      dockerfile: Dockerfile
+    container_name: pharmacy-service
+    restart: always
+    networks:
+      pharmacy-nw:
+
+volumes:
+  db-data:
+  minio-data:
+
+networks:
+  pharmacy-nw:
