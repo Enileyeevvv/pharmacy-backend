@@ -15,6 +15,7 @@ type handler struct {
 func NewHandler(uc UseCase) user.Handler {
 	return &handler{
 		uc: uc,
+		v:  validator.New(),
 	}
 }
 
