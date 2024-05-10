@@ -54,6 +54,21 @@ func (a *adapter) GetPassword(ctx context.Context, login string) (string, *de.Do
 	return password, nil
 }
 
+func (a *adapter) GetUserID(ctx context.Context, login string) (int, *de.DomainError) {
+	var userID int
+	err := a.db.GetContext(ctx, &userID, queryGetUserID, login)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, de.ErrUserNotFound
+	}
+
+	if err != nil {
+		return 0, de.ErrGetUserID
+	}
+
+	return userID, nil
+}
+
 func (a *adapter) GetUser(ctx context.Context, id int) (*usecase.User, *de.DomainError) {
 	var user User
 	err := a.db.GetContext(ctx, &user, queryGetUser, id)

@@ -13,6 +13,6 @@ func MapUserRoots(a *fiber.App, h user.Handler) {
 	auth := userRoutes.Group("/sign")
 
 	auth.Post("/up1", h.UserSignUp())
-	//auth.Post("/in", h.UserSignIn())
-	//auth.Post("/out", h.UserSignOut())
+	auth.Post("/in1", h.UserSignIn())
+	auth.Post("/out1", h.AuthMW(), h.UserSignOut())
 }

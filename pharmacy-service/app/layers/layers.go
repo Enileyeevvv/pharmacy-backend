@@ -7,7 +7,8 @@ import (
 )
 
 type Adapters struct {
-	UserPGAdp useruc.PGAdapter
+	UserPGAdp    useruc.PGAdapter
+	UserRedisAdp useruc.RedisAdapter
 }
 
 type UseCases struct {

@@ -1,8 +1,8 @@
 package http
 
 import (
+	de "github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/domain_error"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/user"
-	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,46 +24,112 @@ func (h *handler) UserSignUp() fiber.Handler {
 		var req SignUpRequest
 
 		if err := ctx.BodyParser(&req); err != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(SignUpResponse{
-				Success: false,
-				Message: err.Error(),
-			})
+			return de.ErrParseRequestBody.ToHTTPError(ctx)
 		}
 
 		if err := h.v.Struct(req); err != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(SignUpResponse{
-				Success: false,
-				Msg:     utils.ValidatorErrors(err),
-			})
+			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
-		err := h.uc.SignUp(ctx.Context(), req.Login, req.Password)
+		err := h.uc.CreateUser(ctx.Context(), req.Login, req.Password)
 		if err != nil {
-			return ctx.Status(err.Code().ToHTTPCode()).JSON(SignUpResponse{
-				Success: false,
-				Message: err.Message(),
-			})
+			return err.ToHTTPError(ctx)
 		}
 
-		return ctx.Status(fiber.StatusOK).JSON(SignUpResponse{
-			Success: true,
-		})
+		return de.OK.ToHTTPError(ctx)
 	}
 }
 
-//func (h *handler) UserSignIn() fiber.Handler {
-//	return func(ctx *fiber.Ctx) error {
-//		return ctx.Status(200).JSON(fiber.Map{
-//			"success": true,
-//			"message": "Hello world",
-//		})
-//	}
-//}
+func (h *handler) UserSignIn() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		token := ctx.Cookies("access-token")
+		if token != "" {
+			err := h.uc.DeleteSession(ctx.Context(), token)
+			if err != nil {
+				return err.ToHTTPError(ctx)
+			}
+		}
 
-//func (h *handler) UserSignOut() fiber.Handler {
-//	return func(ctx *fiber.Ctx) error {
-//		ctx.ClearCookie("access-token")
-//		ctx.ClearCookie("refresh-token")
-//		return ctx.Status(fiber.StatusOK).JSON(// todo)
-//	}
-//}
+		var req SignInRequest
+
+		if err := ctx.BodyParser(&req); err != nil {
+			return de.ErrParseRequestBody.ToHTTPError(ctx)
+		}
+
+		if err := h.v.Struct(req); err != nil {
+			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
+		}
+
+		err := h.uc.CheckPassword(ctx.Context(), req.Login, req.Password)
+		if err != nil {
+			return err.ToHTTPError(ctx)
+		}
+
+		t, expireAt, err := h.uc.CreateSession(ctx.Context(), req.Login)
+		if err != nil {
+			return err.ToHTTPError(ctx)
+		}
+
+		ctx.Cookie(&fiber.Cookie{
+			Name:    "access-token",
+			Value:   t,
+			Expires: expireAt,
+		})
+
+		return de.OK.ToHTTPError(ctx)
+	}
+}
+
+func (h *handler) UserSignOut() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		token := ctx.Cookies("access-token")
+		if token == "" {
+			return de.ErrUnauthorized.ToHTTPError(ctx)
+		}
+
+		err := h.uc.DeleteSession(ctx.Context(), token)
+		if err != nil {
+			return err.ToHTTPError(ctx)
+		}
+
+		ctx.ClearCookie("access-token")
+		return de.OK.ToHTTPError(ctx)
+	}
+}
+
+func (h *handler) AuthMW() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		token := ctx.Cookies("access-token")
+		if token == "" {
+			return de.ErrUnauthorized.ToHTTPError(ctx)
+		}
+
+		userID, err := h.uc.GetUserIDFromSession(ctx.Context(), token)
+		if err != nil {
+			return err.ToHTTPError(ctx)
+		}
+
+		ctx.Locals("userID", userID)
+		return ctx.Next()
+	}
+}
+
+func (h *handler) RoleMW(role user.Role) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		userID, ok := (ctx.Locals("userID")).(int)
+		if !ok {
+			return de.ErrInvalidUserID.ToHTTPError(ctx)
+		}
+
+		roleMatch, err := h.uc.CheckUserRole(ctx.Context(), userID, int(role))
+		if err != nil {
+			return err.ToHTTPError(ctx)
+		}
+
+		if !roleMatch {
+			return de.ErrForbidden.ToHTTPError(ctx)
+		}
+
+		return ctx.Next()
+	}
+}

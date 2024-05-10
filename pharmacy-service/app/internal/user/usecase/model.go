@@ -7,4 +7,5 @@ type User struct {
 	Status       int    `db:"status" json:"status" validate:"required"`
 	CreatedAt    int    `gorm:"autoCreateTime" db:"created_at" json:"created_at"`
 	UpdatedAt    int    `gorm:"autoUpdateTime" db:"updated_at" json:"updated_at"`
+	RoleID       int
 }

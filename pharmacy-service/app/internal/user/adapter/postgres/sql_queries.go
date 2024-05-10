@@ -19,6 +19,12 @@ const (
 		where login = $1;
 `
 
+	queryGetUserID = `
+		select id 
+		from users 
+		where login = $1;
+`
+
 	queryGetUser = `
 		select id,
 			   login,

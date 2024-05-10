@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/config"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/user/adapter/postgres"
+	redis2 "github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/user/adapter/redis"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/user/delivery/http"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/user/usecase"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/layers"
@@ -12,7 +13,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -65,20 +68,34 @@ func initDB(cfg *config.Config) *sqlx.DB {
 	return db
 }
 
+func initRedis(cfg *config.Config) *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port),
+	})
+}
+
 func initAdapters(cfg *config.Config) *layers.Adapters {
 	db := initDB(cfg)
+	r := initRedis(cfg)
 
 	userPGAdp := postgres.NewAdapter(db)
+	userRedisAdp := redis2.NewAdapter(r)
 
 	return &layers.Adapters{
-		UserPGAdp: userPGAdp,
+		UserPGAdp:    userPGAdp,
+		UserRedisAdp: userRedisAdp,
 	}
 }
 
 func initUseCases(cfg *config.Config) *layers.UseCases {
 	adp := initAdapters(cfg)
 
-	userUC := usecase.NewUseCase(adp.UserPGAdp)
+	userUC := usecase.NewUseCase(
+		adp.UserPGAdp,
+		adp.UserRedisAdp,
+		cfg.User.SessionTTL,
+		cfg.User.Secret,
+	)
 
 	return &layers.UseCases{
 		UserUC: userUC,
@@ -106,6 +123,8 @@ func initHTTPServer(cfg *config.Config) *fiber.App {
 		AllowCredentials: true,
 		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
 	}))
+
+	app.Use(logger.New())
 
 	routes.PublicRoutes(app)
 	routes.PrivateRoutes(app)

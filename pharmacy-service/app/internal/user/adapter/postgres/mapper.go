@@ -14,5 +14,6 @@ func MapGetUser(user *User) *usecase.User {
 		Status:       user.Status,
 		CreatedAt:    user.CreatedAt,
 		UpdatedAt:    user.UpdatedAt,
+		RoleID:       user.RoleID,
 	}
 }
