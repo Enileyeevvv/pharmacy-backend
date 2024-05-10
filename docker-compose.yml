@@ -46,6 +46,8 @@ services:
     restart: always
     ports:
       - "9000:9000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       pharmacy-nw:
 
