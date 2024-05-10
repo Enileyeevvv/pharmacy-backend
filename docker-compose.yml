@@ -34,22 +34,22 @@ services:
 #    networks:
 #      pharmacy-nw:
 
-  pharmacy-service:
-    depends_on:
-      - db
-      - redis
-#      - minio
-    build:
-      context: ./pharmacy-service
-      dockerfile: Dockerfile
-    container_name: pharmacy-service
-    restart: always
-    ports:
-      - "9000:9000"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    networks:
-      pharmacy-nw:
+#  pharmacy-service:
+#    depends_on:
+#      - db
+#      - redis
+##      - minio
+#    build:
+#      context: ./pharmacy-service
+#      dockerfile: Dockerfile
+#    container_name: pharmacy-service
+#    restart: always
+#    ports:
+#      - "9000:9000"
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    networks:
+#      pharmacy-nw:
 
 volumes:
   db-data:

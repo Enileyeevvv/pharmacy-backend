@@ -11,7 +11,7 @@ var db *gorm.DB
 
 func Init() *gorm.DB {
 	// todo replace password
-	dsn := "host=db user=postgres password=password dbname=pharmacy sslmode=disable"
+	dsn := "host=localhost user=postgres password=password dbname=pharmacy sslmode=disable"
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
