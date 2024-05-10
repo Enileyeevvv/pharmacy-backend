@@ -44,6 +44,8 @@ services:
       dockerfile: Dockerfile
     container_name: pharmacy-service
     restart: always
+    ports:
+      - "9000:9000"
     networks:
       pharmacy-nw:
 
