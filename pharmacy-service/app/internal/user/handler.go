@@ -18,4 +18,5 @@ type Handler interface {
 	UserSignOut() fiber.Handler
 	AuthMW() fiber.Handler
 	RoleMW(role Role) fiber.Handler
+	GetUserInfo() fiber.Handler
 }

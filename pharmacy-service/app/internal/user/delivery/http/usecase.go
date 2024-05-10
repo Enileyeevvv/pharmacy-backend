@@ -13,4 +13,5 @@ type UseCase interface {
 	GetUserIDFromSession(ctx context.Context, token string) (int, *de.DomainError)
 	CheckUserRole(ctx context.Context, userID, roleID int) (bool, *de.DomainError)
 	DeleteSession(ctx context.Context, token string) *de.DomainError
+	GetUserLoginAndRoleID(ctx context.Context, userID int) (string, int, *de.DomainError)
 }

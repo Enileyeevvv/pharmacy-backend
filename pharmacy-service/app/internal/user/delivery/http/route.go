@@ -10,6 +10,9 @@ func MapUserRoots(a *fiber.App, h user.Handler) {
 
 	userRoutes := v1.Group("/user")
 
+	info := userRoutes.Group("/info")
+	info.Get("/", h.AuthMW(), h.GetUserInfo())
+
 	auth := userRoutes.Group("/sign")
 
 	auth.Post("/up", h.UserSignUp())

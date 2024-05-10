@@ -122,3 +122,12 @@ func (uc *UseCase) CheckUserRole(ctx context.Context, userID, roleID int) (bool,
 func (uc *UseCase) DeleteSession(ctx context.Context, token string) *de.DomainError {
 	return uc.redisAdp.DeleteSession(ctx, token)
 }
+
+func (uc *UseCase) GetUserLoginAndRoleID(ctx context.Context, userID int) (string, int, *de.DomainError) {
+	user, err := uc.pgAdp.GetUser(ctx, userID)
+	if err != nil {
+		return "", 0, err
+	}
+
+	return user.Login, user.RoleID, nil
+}

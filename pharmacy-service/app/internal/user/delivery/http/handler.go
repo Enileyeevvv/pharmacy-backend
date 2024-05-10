@@ -97,6 +97,25 @@ func (h *handler) UserSignOut() fiber.Handler {
 	}
 }
 
+func (h *handler) GetUserInfo() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		userID, ok := (ctx.Locals("userID")).(int)
+		if !ok {
+			return de.ErrInvalidUserID.ToHTTPError(ctx)
+		}
+
+		login, roleID, err := h.uc.GetUserLoginAndRoleID(ctx.Context(), userID)
+		if err != nil {
+			return err.ToHTTPError(ctx)
+		}
+
+		return ctx.Status(fiber.StatusOK).JSON(GetUserInfoResponse{
+			Name:   login,
+			TypeID: roleID,
+		})
+	}
+}
+
 func (h *handler) AuthMW() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		token := ctx.Cookies("access-token")

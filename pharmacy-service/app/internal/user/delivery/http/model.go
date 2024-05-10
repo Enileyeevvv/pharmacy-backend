@@ -15,3 +15,8 @@ type SignInRequest struct {
 	Login    string `json:"login" validate:"required,lte=255"`
 	Password string `json:"password" validate:"required,lte=255"`
 }
+
+type GetUserInfoResponse struct {
+	Name   string `json:"name"`
+	TypeID int    `json:"typeID"`
+}
