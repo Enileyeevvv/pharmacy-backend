@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/Enileyeevvv/pharmacy-backend/internal/user"
+	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/user"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -12,7 +12,7 @@ func MapUserRoots(a *fiber.App, h user.Handler) {
 
 	auth := userRoutes.Group("/sign")
 
-	auth.Post("/up", h.UserSignUp())
-	auth.Post("/in", h.UserSignIn())
-	auth.Post("/out", h.UserSignOut())
+	auth.Post("/up1", h.UserSignUp())
+	//auth.Post("/in", h.UserSignIn())
+	//auth.Post("/out", h.UserSignOut())
 }

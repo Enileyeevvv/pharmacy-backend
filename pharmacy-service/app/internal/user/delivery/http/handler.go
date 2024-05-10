@@ -1,82 +1,68 @@
 package http
 
 import (
-	"github.com/Enileyeevvv/pharmacy-backend/database"
-	"github.com/Enileyeevvv/pharmacy-backend/models"
-	"github.com/Enileyeevvv/pharmacy-backend/pkg/utils"
+	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/user"
+	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/pkg/utils"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	"time"
 )
 
 type handler struct {
+	v  *validator.Validate
+	uc UseCase
+}
+
+func NewHandler(uc UseCase) user.Handler {
+	return &handler{
+		uc: uc,
+	}
 }
 
 func (h *handler) UserSignUp() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		req := &models.SignUp{}
-		if err := ctx.BodyParser(req); err != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"success": false,
-				"message": err.Error(),
+		var req SignUpRequest
+
+		if err := ctx.BodyParser(&req); err != nil {
+			return ctx.Status(fiber.StatusBadRequest).JSON(SignUpResponse{
+				Success: false,
+				Message: err.Error(),
 			})
 		}
 
-		validate := utils.NewValidator()
-		if err := validate.Struct(req); err != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"success": false,
-				"msg":     utils.ValidatorErrors(err),
+		if err := h.v.Struct(req); err != nil {
+			return ctx.Status(fiber.StatusBadRequest).JSON(SignUpResponse{
+				Success: false,
+				Msg:     utils.ValidatorErrors(err),
 			})
 		}
 
-		isUserSignedUp := database.IsUserCreatedByLogin(req.Login)
-		if isUserSignedUp {
-			return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"success": false,
-				"msg":     "This login is already signed up",
-			})
-		}
-
-		user := &models.User{}
-
-		user.Login = req.Login
-		user.CreatedAt = time.Now().Unix()
-		user.UpdatedAt = time.Now().Unix()
-		user.Password = utils.GeneratePassword(req.Password)
-		user.Status = 1 // 0 == blocked, 1 == active
-
-		err := database.CreateUser(user)
-
+		err := h.uc.SignUp(ctx.Context(), req.Login, req.Password)
 		if err != nil {
-			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"success": false,
-				"msg":     err.Error(),
+			return ctx.Status(err.Code().ToHTTPCode()).JSON(SignUpResponse{
+				Success: false,
+				Message: err.Message(),
 			})
 		}
 
-		user.Password = ""
-
-		return ctx.Status(200).JSON(fiber.Map{
-			"success": true,
-			"user":    user,
+		return ctx.Status(fiber.StatusOK).JSON(SignUpResponse{
+			Success: true,
 		})
 	}
 }
 
-func (h *handler) UserSignIn() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		return ctx.Status(200).JSON(fiber.Map{
-			"success": true,
-			"message": "Hello world",
-		})
-	}
-}
+//func (h *handler) UserSignIn() fiber.Handler {
+//	return func(ctx *fiber.Ctx) error {
+//		return ctx.Status(200).JSON(fiber.Map{
+//			"success": true,
+//			"message": "Hello world",
+//		})
+//	}
+//}
 
-func (h *handler) UserSignOut() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		return ctx.Status(200).JSON(fiber.Map{
-			"success": true,
-			"message": "Hello world",
-		})
-	}
-}
+//func (h *handler) UserSignOut() fiber.Handler {
+//	return func(ctx *fiber.Ctx) error {
+//		ctx.ClearCookie("access-token")
+//		ctx.ClearCookie("refresh-token")
+//		return ctx.Status(fiber.StatusOK).JSON(// todo)
+//	}
+//}
