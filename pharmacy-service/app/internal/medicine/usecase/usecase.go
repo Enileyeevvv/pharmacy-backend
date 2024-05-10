@@ -32,3 +32,7 @@ func (u *UseCase) FetchMedicinalProducts(
 
 	return mps, hasNext, nil
 }
+
+func (u *UseCase) CreateMedicine(ctx context.Context, medicine MedicinalProduct) *de.DomainError {
+	return u.pgAdp.CreateMedicinalProduct(ctx, medicine)
+}

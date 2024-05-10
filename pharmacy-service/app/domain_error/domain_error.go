@@ -29,6 +29,7 @@ var (
 	ErrInvalidUserID          = NewDomainError(dc.BadRequest, "invalid user id")
 	ErrForbidden              = NewDomainError(dc.Forbidden, "forbidden")
 	ErrDeleteSession          = NewDomainError(dc.Internal, "error deleting session")
+	ErrCreateMedicalProduct   = NewDomainError(dc.Internal, "error creating medical product")
 )
 
 type DomainError struct {

@@ -3,6 +3,7 @@ package http
 import (
 	de "github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/domain_error"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine"
+	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine/usecase"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -37,5 +38,35 @@ func (h *handler) FetchMedicinalProducts() fiber.Handler {
 		}
 
 		return ctx.Status(fiber.StatusOK).JSON(MapFetchMedicinalProductsResponse(mps, hasNext))
+	}
+}
+
+func (h *handler) CreateMedicinalProduct() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		var req CreateMedicinalProductRequest
+
+		if err := ctx.BodyParser(&req); err != nil {
+			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
+		}
+
+		if err := h.v.Struct(&req); err != nil {
+			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
+		}
+
+		m := usecase.MedicinalProduct{
+			Name:        req.Name,
+			SellName:    req.SellName,
+			ATXCode:     req.ATXCode,
+			Description: req.Description,
+			Quantity:    req.Quantity,
+			MaxQuantity: req.MaxQuantity,
+		}
+
+		err := h.uc.CreateMedicine(ctx.Context(), m)
+		if err != nil {
+			return err.ToHTTPError(ctx)
+		}
+
+		return de.OK.ToHTTPError(ctx)
 	}
 }

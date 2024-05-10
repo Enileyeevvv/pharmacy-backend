@@ -7,4 +7,5 @@ import (
 
 type PGAdapter interface {
 	FetchMedicinalProducts(ctx context.Context, limit, offset int) ([]MedicinalProduct, *de.DomainError)
+	CreateMedicinalProduct(ctx context.Context, mp MedicinalProduct) *de.DomainError
 }

@@ -25,4 +25,11 @@ const (
 		order by id
 		limit ($1 + 1) offset ($1 * ($2 - 1));
 `
+
+	queryCreateMedicalProduct = `
+		insert into medicinal_products
+		(name, sell_name, atx_code, description, quantity, max_quantity)
+		values ($1, $2, $3, $4, $5, $6)
+		on conflict do nothing;
+`
 )

@@ -1,9 +1,11 @@
 package http
 
-type CreateMedicinalProduct struct {
+type CreateMedicinalProductRequest struct {
 	Name        string `json:"name" validate:"required,lte=255"`
+	SellName    string `json:"sellName" validate:"required,lte=255"`
+	ATXCode     string `json:"ATXCode" validate:"required,lte=255"`
 	Description string `json:"description" validate:"required,lte=255"`
-	Quantity    *int   `json:"quantity" validate:"required,lte=255"`
+	Quantity    int    `json:"quantity" validate:"required,lte=255"`
 	MaxQuantity int    `json:"maxQuantity" validate:"required,gte=1"`
 }
 

@@ -38,3 +38,21 @@ func (a *adapter) FetchMedicinalProducts(
 
 	return MapMedicinalProductSlice(mps), nil
 }
+
+func (a *adapter) CreateMedicinalProduct(ctx context.Context, mp usecase.MedicinalProduct) *de.DomainError {
+	_, err := a.db.ExecContext(
+		ctx,
+		queryCreateMedicalProduct,
+		mp.Name,
+		mp.SellName,
+		mp.ATXCode,
+		mp.Description,
+		mp.Quantity,
+		mp.MaxQuantity)
+	if err != nil {
+		log.Error(err)
+		return de.ErrCreateMedicalProduct
+	}
+
+	return nil
+}

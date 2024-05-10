@@ -8,4 +8,5 @@ import (
 
 type UseCase interface {
 	FetchMedicinalProducts(ctx context.Context, limit, offset int) ([]usecase.MedicinalProduct, bool, *de.DomainError)
+	CreateMedicine(ctx context.Context, medicine usecase.MedicinalProduct) *de.DomainError
 }
