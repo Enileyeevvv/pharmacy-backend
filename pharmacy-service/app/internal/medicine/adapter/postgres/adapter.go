@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	de "github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/domain_error"
+	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine/usecase"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
@@ -13,15 +14,21 @@ type adapter struct {
 	db *sqlx.DB
 }
 
+func NewAdapter(db *sqlx.DB) usecase.PGAdapter {
+	return &adapter{
+		db: db,
+	}
+}
+
 func (a *adapter) FetchMedicinalProducts(
 	ctx context.Context,
 	limit, offset int,
-) ([]MedicinalProduct, *de.DomainError) {
+) ([]usecase.MedicinalProduct, *de.DomainError) {
 	var mps []MedicinalProduct
 	err := a.db.SelectContext(ctx, &mps, queryFetchMedicines, limit, offset)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return []MedicinalProduct{}, nil
+		return make([]usecase.MedicinalProduct, 0), nil
 	}
 
 	if err != nil {
@@ -29,5 +36,5 @@ func (a *adapter) FetchMedicinalProducts(
 		return nil, de.ErrFetchMedicinalProducts
 	}
 
-	return mps, nil
+	return MapMedicinalProductSlice(mps), nil
 }

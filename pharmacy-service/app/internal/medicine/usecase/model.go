@@ -9,23 +9,16 @@ type MedicinalProductJSON struct {
 }
 
 type MedicinalProduct struct {
-	ID                  int
-	Name                string
-	SellName            string
-	ATXCode             string
-	Description         string
-	PharmaceuticalGroup PharmaceuticalGroup
-	Company             Company // todo where image?
-	Quantity            int
-	MaxQuantity         int
-}
-
-type Company struct {
-	ID   int
-	Name string
-}
-
-type PharmaceuticalGroup struct {
-	ID   int
-	Name string
+	ID                      int
+	Name                    string
+	SellName                string
+	ATXCode                 string
+	Description             string
+	PharmaceuticalGroupID   int
+	PharmaceuticalGroupName string
+	CompanyID               int
+	CompanyName             string
+	Quantity                int
+	MaxQuantity             int
+	ImageURL                string
 }

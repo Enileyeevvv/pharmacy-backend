@@ -1,17 +1,18 @@
 package http
 
 import (
-	"github.com/Enileyeevvv/pharmacy-backend/controllers"
+	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine"
+	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/user"
 	"github.com/gofiber/fiber/v2"
 )
 
-func PrivateRoutes(a *fiber.App) {
+func MapMedicineRoots(a *fiber.App, uH user.Handler, mH medicine.Handler) {
 	v1 := a.Group("/api/v1")
 
 	medProductRoutes := v1.Group("/medicinal_product")
 
-	medProductRoutes.Get("/", controllers.GetMedicinalProductList)
-	medProductRoutes.Post("/", controllers.CreateMedicinalProduct)
-	medProductRoutes.Patch("/", controllers.UpdateMedicinalProduct)
-	medProductRoutes.Delete("/", controllers.DeleteMedicinalProduct)
+	medProductRoutes.Get("/", uH.AuthMW(), mH.FetchMedicinalProducts())
+	//medProductRoutes.Post("/", controllers.CreateMedicinalProduct)
+	//medProductRoutes.Patch("/", controllers.UpdateMedicinalProduct)
+	//medProductRoutes.Delete("/", controllers.DeleteMedicinalProduct)
 }

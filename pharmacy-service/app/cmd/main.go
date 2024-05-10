@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/config"
+	postgres2 "github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine/adapter/postgres"
+	http2 "github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine/delivery/http"
+	usecase2 "github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine/usecase"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/user/adapter/postgres"
 	redis2 "github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/user/adapter/redis"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/user/delivery/http"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/user/usecase"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/layers"
-	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/pkg/routes"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -80,10 +82,12 @@ func initAdapters(cfg *config.Config) *layers.Adapters {
 
 	userPGAdp := postgres.NewAdapter(db)
 	userRedisAdp := redis2.NewAdapter(r)
+	medicinePGAdp := postgres2.NewAdapter(db)
 
 	return &layers.Adapters{
-		UserPGAdp:    userPGAdp,
-		UserRedisAdp: userRedisAdp,
+		UserPGAdp:         userPGAdp,
+		UserRedisAdp:      userRedisAdp,
+		MedicinePGAdapter: medicinePGAdp,
 	}
 }
 
@@ -97,8 +101,11 @@ func initUseCases(cfg *config.Config) *layers.UseCases {
 		cfg.User.Secret,
 	)
 
+	medicineUC := usecase2.NewUseCase(adp.MedicinePGAdapter)
+
 	return &layers.UseCases{
-		UserUC: userUC,
+		UserUC:     userUC,
+		MedicineUC: medicineUC,
 	}
 }
 
@@ -106,9 +113,11 @@ func initHandlers(cfg *config.Config) *layers.Handlers {
 	uc := initUseCases(cfg)
 
 	userH := http.NewHandler(uc.UserUC)
+	medicineH := http2.NewHandler(uc.MedicineUC)
 
 	return &layers.Handlers{
-		UserH: userH,
+		UserH:     userH,
+		MedicineH: medicineH,
 	}
 }
 
@@ -126,10 +135,8 @@ func initHTTPServer(cfg *config.Config) *fiber.App {
 
 	app.Use(logger.New())
 
-	routes.PublicRoutes(app)
-	routes.PrivateRoutes(app)
-
 	http.MapUserRoots(app, handlers.UserH)
+	http2.MapMedicineRoots(app, handlers.UserH, handlers.MedicineH)
 
 	return app
 }

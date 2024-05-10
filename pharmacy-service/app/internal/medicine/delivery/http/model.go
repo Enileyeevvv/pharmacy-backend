@@ -7,29 +7,27 @@ type CreateMedicinalProduct struct {
 	MaxQuantity int    `json:"maxQuantity" validate:"required,gte=1"`
 }
 
-type GetMedicinalProductRequest struct {
+type FetchMedicinalProductsRequest struct {
 	Limit  int `query:"limit"`
 	Offset int `query:"offset"`
 }
 
-type GetMedicinalProductResponse struct {
-	ID                  int                 `json:"id"`
-	Name                string              `json:"name"`
-	SellName            string              `json:"sellName"`
-	ATXCode             string              `json:"ATXCode"`
-	Description         string              `json:"description"`
-	PharmaceuticalGroup PharmaceuticalGroup `json:"pharmaceuticalGroup"`
-	Company             Company             `json:"company"` // todo where image?
-	Quantity            int                 `json:"quantity"`
-	MaxQuantity         int                 `json:"maxQuantity"`
+type MedicinalProduct struct {
+	ID                      int    `json:"id"`
+	Name                    string `json:"name"`
+	SellName                string `json:"sellName"`
+	ATXCode                 string `json:"ATXCode"`
+	Description             string `json:"description"`
+	PharmaceuticalGroupID   int    `json:"pharmaceuticalGroupID"`
+	PharmaceuticalGroupName string `json:"pharmaceuticalGroupName"`
+	CompanyID               int    `json:"companyID"`
+	CompanyName             string `json:"companyName"`
+	Quantity                int    `json:"quantity"`
+	MaxQuantity             int    `json:"maxQuantity"`
+	ImageURL                string `json:"imageURL"`
 }
 
-type Company struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
-type PharmaceuticalGroup struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+type FetchMedicinalProductsResponse struct {
+	HasNext bool               `json:"hasNext"`
+	Data    []MedicinalProduct `json:"data"`
 }
