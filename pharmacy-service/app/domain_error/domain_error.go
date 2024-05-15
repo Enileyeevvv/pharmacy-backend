@@ -34,7 +34,10 @@ var (
 	ErrCreateMedicalProduct          = NewDomainError(dc.Internal, "error creating medical product")
 	ErrCreateCompany                 = NewDomainError(dc.Internal, "error creating company")
 	ErrUpsertMedicinalProductCompany = NewDomainError(dc.Internal, "error upserting medicinal product company")
-	ErrFetchPatients                 = NewDomainError(dc.Internal, "error fetchin g patients")
+	ErrFetchPatients                 = NewDomainError(dc.Internal, "error fetching patients")
+	ErrGetPatient                    = NewDomainError(dc.Internal, "error getting patient")
+
+	ErrIncorrectPathParam = NewDomainError(dc.BadRequest, "incorrect path param")
 )
 
 type DomainError struct {

@@ -150,3 +150,20 @@ func (a *adapter) FetchPatients(ctx context.Context, limit, offset int, name *st
 
 	return MapPatientSlice(patients), nil
 }
+
+func (a *adapter) GetPatient(ctx context.Context, id int) (usecase.Patient, *de.DomainError) {
+	var patient Patient
+
+	err := a.db.GetContext(ctx, &patient, queryGetPatient, id)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return usecase.Patient{}, nil
+	}
+
+	if err != nil {
+		log.Error(err)
+		return usecase.Patient{}, de.ErrGetPatient
+	}
+
+	return MapPatient(patient), nil
+}

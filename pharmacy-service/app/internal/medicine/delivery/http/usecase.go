@@ -10,4 +10,5 @@ type UseCase interface {
 	FetchMedicinalProducts(ctx context.Context, limit, offset int) ([]usecase.MedicinalProduct, bool, *de.DomainError)
 	CreateMedicinalProduct(ctx context.Context, medicine usecase.MedicinalProduct) *de.DomainError
 	FetchPatients(ctx context.Context, limit, offset int, name *string) ([]usecase.Patient, bool, *de.DomainError)
+	GetPatient(ctx context.Context, id int) (usecase.Patient, *de.DomainError)
 }

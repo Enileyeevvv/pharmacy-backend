@@ -14,4 +14,5 @@ type PGAdapter interface {
 	UpsertMedicinalProductCompany(ctx context.Context, mp MedicinalProduct) *de.DomainError
 
 	FetchPatients(ctx context.Context, limit, offset int, name *string) ([]Patient, *de.DomainError)
+	GetPatient(ctx context.Context, id int) (Patient, *de.DomainError)
 }

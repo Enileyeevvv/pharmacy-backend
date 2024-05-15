@@ -82,3 +82,12 @@ func (u *UseCase) FetchPatients(
 
 	return ps, hasNext, nil
 }
+
+func (u *UseCase) GetPatient(ctx context.Context, id int) (Patient, *de.DomainError) {
+	p, err := u.pgAdp.GetPatient(ctx, id)
+	if err != nil {
+		return Patient{}, err
+	}
+
+	return p, nil
+}

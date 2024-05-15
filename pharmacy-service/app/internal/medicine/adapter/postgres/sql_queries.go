@@ -74,4 +74,15 @@ const (
 		order by id
 		limit ($1 + 1) offset ($1 * ($2 - 1));
 `
+
+	queryGetPatient = `
+		select p.id as id,
+			   p.name as name,
+			   p.email as email,
+			   p.birthday as birthday,
+			   p.createdat as created_at,
+			   p.updatedat as updated_at
+		from patient p
+		where id = $1;
+`
 )

@@ -49,3 +49,14 @@ func MapPatientSlice(ps []Patient) []usecase.Patient {
 
 	return psData
 }
+
+func MapPatient(p Patient) usecase.Patient {
+	return usecase.Patient{
+		ID:        p.ID,
+		Name:      p.Name,
+		Email:     p.Email,
+		Birthday:  p.Birthday,
+		CreatedAt: p.CreatedAt,
+		UpdatedAt: p.UpdatedAt,
+	}
+}

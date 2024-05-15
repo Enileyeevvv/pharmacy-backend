@@ -5,6 +5,7 @@ import (
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"strconv"
 )
 
 type handler struct {
@@ -79,5 +80,22 @@ func (h *handler) FetchPatients() fiber.Handler {
 		}
 
 		return ctx.Status(fiber.StatusOK).JSON(MapFetchPatientsResponse(ps, hasNext))
+	}
+}
+
+func (h *handler) GetPatient() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		patientIDParam := ctx.Params("id")
+		patientID, err := strconv.Atoi(patientIDParam)
+		if err != nil {
+			return de.ErrIncorrectPathParam.ToHTTPError(ctx)
+		}
+
+		p, dErr := h.uc.GetPatient(ctx.Context(), patientID)
+		if dErr != nil {
+			return dErr.ToHTTPError(ctx)
+		}
+
+		return ctx.Status(fiber.StatusOK).JSON(MapGetPatientResponse(p))
 	}
 }

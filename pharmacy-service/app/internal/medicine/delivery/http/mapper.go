@@ -69,3 +69,16 @@ func MapFetchPatientsResponse(ps []usecase.Patient, hasNext bool) FetchPatientsR
 		Data:    psData,
 	}
 }
+
+func MapGetPatientResponse(p usecase.Patient) GetPatientResponse {
+	return GetPatientResponse{
+		Data: Patient{
+			ID:        p.ID,
+			Name:      p.Name,
+			Email:     p.Email,
+			Birthday:  p.Birthday,
+			CreatedAt: p.CreatedAt,
+			UpdatedAt: p.UpdatedAt,
+		},
+	}
+}

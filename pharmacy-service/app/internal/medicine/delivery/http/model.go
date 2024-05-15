@@ -58,3 +58,7 @@ type FetchPatientsResponse struct {
 	HasNext bool      `json:"hasNext"`
 	Data    []Patient `json:"data"`
 }
+
+type GetPatientResponse struct {
+	Data Patient `json:"data,omitempty"`
+}
