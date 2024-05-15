@@ -82,3 +82,59 @@ func MapGetPatientResponse(p usecase.Patient) GetPatientResponse {
 		},
 	}
 }
+
+func MapGetPrescriptionResponse(p usecase.Prescription) GetPrescriptionResponse {
+	return GetPrescriptionResponse{
+		Data: Prescription{
+			ID:                       p.ID,
+			StampID:                  p.StampID,
+			TypeID:                   p.TypeID,
+			StatusID:                 p.StatusID,
+			MedicinalProductID:       p.MedicinalProductID,
+			MedicinalProductName:     p.MedicinalProductName,
+			MedicinalProductQuantity: p.MedicinalProductQuantity,
+			DoctorID:                 p.DoctorID,
+			DoctorName:               p.DoctorName,
+			PatientID:                p.PatientID,
+			PatientName:              p.PatientName,
+			PharmacistID:             p.PharmacistID,
+			PharmacistName:           p.PharmacistName,
+			CreatedAt:                p.CreatedAt,
+			UpdatedAt:                p.UpdatedAt,
+			ExpiredAt:                p.ExpiredAt,
+		},
+	}
+}
+
+func MapFetchPrescriptionsResponse(ps []usecase.Prescription, hasNext bool) FetchPrescriptionsResponse {
+	psData := make([]Prescription, 0)
+	if ps != nil {
+		for _, p := range ps {
+			pEntry := Prescription{
+				ID:                       p.ID,
+				StampID:                  p.StampID,
+				TypeID:                   p.TypeID,
+				StatusID:                 p.StatusID,
+				MedicinalProductID:       p.MedicinalProductID,
+				MedicinalProductName:     p.MedicinalProductName,
+				MedicinalProductQuantity: p.MedicinalProductQuantity,
+				DoctorID:                 p.DoctorID,
+				DoctorName:               p.DoctorName,
+				PatientID:                p.PatientID,
+				PatientName:              p.PatientName,
+				PharmacistID:             p.PharmacistID,
+				PharmacistName:           p.PharmacistName,
+				CreatedAt:                p.CreatedAt,
+				UpdatedAt:                p.UpdatedAt,
+				ExpiredAt:                p.ExpiredAt,
+			}
+
+			psData = append(psData, pEntry)
+		}
+	}
+
+	return FetchPrescriptionsResponse{
+		HasNext: hasNext,
+		Data:    psData,
+	}
+}

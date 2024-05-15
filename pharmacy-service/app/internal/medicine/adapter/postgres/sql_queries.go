@@ -85,4 +85,65 @@ const (
 		from patient p
 		where id = $1;
 `
+
+	queryFetchPrescriptions = `
+		select ps.id as id,
+			   ps.stampID as stamp_id,
+			   ps.typeID as type_id,
+			   ps.statusID as status_id,
+			   ps.medicinalProductID as medicinal_product_id,
+			   mp.name as medicinal_product_name,
+			   ps.medicinalProductQuantity as medicinal_product_quantity,
+			   ps.doctorID as doctor_id,
+			   ds.login as doctor_name,
+			   ps.patientID as patient_id,
+			   p.name as patient_name,
+			   ps.pharmacistID as pharmacist_id,
+			   phs.login as pharmacist_name,
+			   ps.createdAt as created_at,
+			   ps.updatedAt as updated_at,
+			   ps.expiredAt as expired_at
+		
+		from prescriptions ps
+			join medicinal_products mp
+				on ps.medicinalProductID = mp.id
+			join users ds
+				on ps.doctorID = ds.id and ds.role_id = 1
+			join patient p
+				on ps.patientID = p.id
+			join users phs
+				 on ps.doctorID = phs.id and phs.role_id = 2
+		order by id
+		limit ($1 + 1) offset ($1 * ($2 - 1));
+`
+
+	queryGetPrescription = `
+		select ps.id as id,
+			   ps.stampID as stamp_id,
+			   ps.typeID as type_id,
+			   ps.statusID as status_id,
+			   ps.medicinalProductID as medicinal_product_id,
+			   mp.name as medicinal_product_name,
+			   ps.medicinalProductQuantity as medicinal_product_quantity,
+			   ps.doctorID as doctor_id,
+			   ds.login as doctor_name,
+			   ps.patientID as patient_id,
+			   p.name as patient_name,
+			   ps.pharmacistID as pharmacist_id,
+			   phs.login as pharmacist_name,
+			   ps.createdAt as created_at,
+			   ps.updatedAt as updated_at,
+			   ps.expiredAt as expired_at
+		
+		from prescriptions ps
+			join medicinal_products mp
+				on ps.medicinalProductID = mp.id
+			join users ds
+				on ps.doctorID = ds.id and ds.role_id = 1
+			join patient p
+				on ps.patientID = p.id
+			join users phs
+				 on ps.doctorID = phs.id and phs.role_id = 2
+		where id = $1;
+`
 )

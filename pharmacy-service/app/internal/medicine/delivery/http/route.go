@@ -17,4 +17,8 @@ func MapMedicineRoots(a *fiber.App, uH user.Handler, mH medicine.Handler) {
 	patient := v1.Group("/patient")
 	patient.Get("/", mH.FetchPatients())
 	patient.Get("/:id", mH.GetPatient())
+
+	prescription := v1.Group("/prescription")
+	prescription.Get("/", mH.FetchPrescriptions())
+	prescription.Get("/:id", mH.GetPrescription())
 }

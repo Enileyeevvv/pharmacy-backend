@@ -1,5 +1,7 @@
 package postgres
 
+import "database/sql"
+
 type MedicinalProduct struct {
 	ID                      int    `db:"id"`
 	Name                    string `db:"name"`
@@ -22,4 +24,23 @@ type Patient struct {
 	Birthday  int    `db:"birthday"`
 	CreatedAt int    `db:"created_at"`
 	UpdatedAt int    `db:"updated_at"`
+}
+
+type Prescription struct {
+	ID                       int            `db:"id"`
+	StampID                  int            `db:"stamp_id"`
+	TypeID                   int            `db:"type_id"`
+	StatusID                 int            `db:"status_id"`
+	MedicinalProductID       int            `db:"medicinal_product_id"`
+	MedicinalProductName     string         `db:"medicinal_product_name"`
+	MedicinalProductQuantity int            `db:"medicinal_product_quantity"`
+	DoctorID                 int            `db:"doctor_id"`
+	DoctorName               string         `db:"doctor_name"`
+	PatientID                int            `db:"patient_id"`
+	PatientName              string         `db:"patient_name"`
+	PharmacistID             sql.NullInt64  `db:"pharmacist_id"`
+	PharmacistName           sql.NullString `db:"pharmacist_name"`
+	CreatedAt                int            `db:"created_at"`
+	UpdatedAt                int            `db:"updated_at"`
+	ExpiredAt                int            `db:"expired_at"`
 }

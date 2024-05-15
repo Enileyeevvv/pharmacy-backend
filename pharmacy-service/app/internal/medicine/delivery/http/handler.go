@@ -99,3 +99,41 @@ func (h *handler) GetPatient() fiber.Handler {
 		return ctx.Status(fiber.StatusOK).JSON(MapGetPatientResponse(p))
 	}
 }
+
+func (h *handler) FetchPrescriptions() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		var req FetchPrescriptionsRequest
+
+		if err := ctx.QueryParser(&req); err != nil {
+			return de.ErrParseRequestBody.ToHTTPError(ctx)
+		}
+
+		if err := h.v.Struct(&req); err != nil {
+			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
+		}
+
+		ps, hasNext, dErr := h.uc.FetchPrescriptions(ctx.Context(), req.Limit, req.Offset)
+		if dErr != nil {
+			return dErr.ToHTTPError(ctx)
+		}
+
+		return ctx.Status(fiber.StatusOK).JSON(MapFetchPrescriptionsResponse(ps, hasNext))
+	}
+}
+
+func (h *handler) GetPrescription() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		prescriptionIDParam := ctx.Params("id")
+		prescriptionID, err := strconv.Atoi(prescriptionIDParam)
+		if err != nil {
+			return de.ErrIncorrectPathParam.ToHTTPError(ctx)
+		}
+
+		p, dErr := h.uc.GetPrescription(ctx.Context(), prescriptionID)
+		if dErr != nil {
+			return dErr.ToHTTPError(ctx)
+		}
+
+		return ctx.Status(fiber.StatusOK).JSON(MapGetPrescriptionResponse(p))
+	}
+}

@@ -91,3 +91,30 @@ func (u *UseCase) GetPatient(ctx context.Context, id int) (Patient, *de.DomainEr
 
 	return p, nil
 }
+
+func (u *UseCase) FetchPrescriptions(
+	ctx context.Context,
+	limit, offset int,
+) ([]Prescription, bool, *de.DomainError) {
+	ps, err := u.pgAdp.FetchPrescriptions(ctx, limit, offset)
+	if err != nil {
+		return nil, false, err
+	}
+
+	hasNext := false
+	if len(ps) > limit {
+		hasNext = true
+		ps = ps[:len(ps)-1]
+	}
+
+	return ps, hasNext, nil
+}
+
+func (u *UseCase) GetPrescription(ctx context.Context, id int) (Prescription, *de.DomainError) {
+	p, err := u.pgAdp.GetPrescription(ctx, id)
+	if err != nil {
+		return Prescription{}, err
+	}
+
+	return p, nil
+}

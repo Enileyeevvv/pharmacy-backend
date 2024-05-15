@@ -7,4 +7,6 @@ type Handler interface {
 	CreateMedicinalProduct() fiber.Handler
 	FetchPatients() fiber.Handler
 	GetPatient() fiber.Handler
+	FetchPrescriptions() fiber.Handler
+	GetPrescription() fiber.Handler
 }

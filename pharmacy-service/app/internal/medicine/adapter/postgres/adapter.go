@@ -167,3 +167,37 @@ func (a *adapter) GetPatient(ctx context.Context, id int) (usecase.Patient, *de.
 
 	return MapPatient(patient), nil
 }
+
+func (a *adapter) FetchPrescriptions(ctx context.Context, limit, offset int) ([]usecase.Prescription, *de.DomainError) {
+	var ps []Prescription
+
+	err := a.db.SelectContext(ctx, &ps, queryFetchPrescriptions, limit, offset)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return make([]usecase.Prescription, 0), nil
+	}
+
+	if err != nil {
+		log.Error(err)
+		return nil, de.ErrFetchPrescriptions
+	}
+
+	return MapPrescriptions(ps), nil
+}
+
+func (a *adapter) GetPrescription(ctx context.Context, id int) (usecase.Prescription, *de.DomainError) {
+	var p Prescription
+
+	err := a.db.GetContext(ctx, &p, queryGetPrescription, id)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return usecase.Prescription{}, nil
+	}
+
+	if err != nil {
+		log.Error(err)
+		return usecase.Prescription{}, de.ErrGetPrescription
+	}
+
+	return MapPrescription(p), nil
+}

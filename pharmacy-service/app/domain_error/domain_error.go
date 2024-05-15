@@ -36,6 +36,8 @@ var (
 	ErrUpsertMedicinalProductCompany = NewDomainError(dc.Internal, "error upserting medicinal product company")
 	ErrFetchPatients                 = NewDomainError(dc.Internal, "error fetching patients")
 	ErrGetPatient                    = NewDomainError(dc.Internal, "error getting patient")
+	ErrFetchPrescriptions            = NewDomainError(dc.Internal, "error fetching prescriptions")
+	ErrGetPrescription               = NewDomainError(dc.Internal, "error getting prescription")
 
 	ErrIncorrectPathParam = NewDomainError(dc.BadRequest, "incorrect path param")
 )

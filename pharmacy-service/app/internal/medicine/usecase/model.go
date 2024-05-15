@@ -23,3 +23,22 @@ type Patient struct {
 	CreatedAt int
 	UpdatedAt int
 }
+
+type Prescription struct {
+	ID                       int
+	StampID                  int
+	TypeID                   int
+	StatusID                 int
+	MedicinalProductID       int
+	MedicinalProductName     string
+	MedicinalProductQuantity int
+	DoctorID                 int
+	DoctorName               string
+	PatientID                int
+	PatientName              string
+	PharmacistID             *int
+	PharmacistName           *string
+	CreatedAt                int
+	UpdatedAt                int
+	ExpiredAt                int
+}
