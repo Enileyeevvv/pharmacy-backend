@@ -14,3 +14,12 @@ type MedicinalProduct struct {
 	CompanyName             string `db:"company_name"`
 	ImageURL                string `db:"image_url"`
 }
+
+type Patient struct {
+	ID        int    `db:"id"`
+	Name      string `db:"name"`
+	Email     string `db:"email"`
+	Birthday  int    `db:"birthday"`
+	CreatedAt int    `db:"created_at"`
+	UpdatedAt int    `db:"updated_at"`
+}

@@ -14,3 +14,12 @@ type MedicinalProduct struct {
 	MaxQuantity             int
 	ImageURL                string
 }
+
+type Patient struct {
+	ID        int
+	Name      string
+	Email     string
+	Birthday  int
+	CreatedAt int
+	UpdatedAt int
+}

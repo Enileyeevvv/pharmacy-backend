@@ -13,6 +13,7 @@ func MapMedicineRoots(a *fiber.App, uH user.Handler, mH medicine.Handler) {
 
 	medProductRoutes.Get("/", uH.AuthMW(), mH.FetchMedicinalProducts())
 	medProductRoutes.Post("/", uH.AuthMW(), uH.RoleMW(user.ADMIN), mH.CreateMedicinalProduct())
-	//medProductRoutes.Patch("/", controllers.UpdateMedicinalProduct)
-	//medProductRoutes.Delete("/", controllers.DeleteMedicinalProduct)
+
+	patient := v1.Group("/patient")
+	patient.Get("/", mH.FetchPatients())
 }

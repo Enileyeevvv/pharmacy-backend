@@ -33,6 +33,52 @@ func (u *UseCase) FetchMedicinalProducts(
 	return mps, hasNext, nil
 }
 
-func (u *UseCase) CreateMedicine(ctx context.Context, medicine MedicinalProduct) *de.DomainError {
-	return u.pgAdp.CreateMedicinalProduct(ctx, medicine)
+func (u *UseCase) CreateMedicinalProduct(ctx context.Context, medicine MedicinalProduct) *de.DomainError {
+	mpID, err := u.pgAdp.CheckMedicinalProductExists(ctx, medicine)
+	if err != nil {
+		return err
+	}
+
+	cID, err := u.pgAdp.CheckCompanyExists(ctx, medicine)
+	if err != nil {
+		return err
+	}
+
+	if mpID == -1 {
+		mpID, err = u.pgAdp.CreateMedicinalProduct(ctx, medicine)
+		if err != nil {
+			return err
+		}
+	}
+
+	if cID == -1 {
+		cID, err = u.pgAdp.CreateCompany(ctx, medicine)
+		if err != nil {
+			return err
+		}
+	}
+
+	medicine.ID = mpID
+	medicine.CompanyID = cID
+
+	return u.pgAdp.UpsertMedicinalProductCompany(ctx, medicine)
+}
+
+func (u *UseCase) FetchPatients(
+	ctx context.Context,
+	limit, offset int,
+	name *string,
+) ([]Patient, bool, *de.DomainError) {
+	ps, err := u.pgAdp.FetchPatients(ctx, limit, offset, name)
+	if err != nil {
+		return nil, false, err
+	}
+
+	hasNext := false
+	if len(ps) > limit {
+		hasNext = true
+		ps = ps[:len(ps)-1]
+	}
+
+	return ps, hasNext, nil
 }

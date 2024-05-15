@@ -28,3 +28,24 @@ func MapMedicinalProductSlice(mps []MedicinalProduct) []usecase.MedicinalProduct
 
 	return mpsData
 }
+
+func MapPatientSlice(ps []Patient) []usecase.Patient {
+	if ps == nil {
+		return make([]usecase.Patient, 0)
+	}
+
+	psData := make([]usecase.Patient, 0)
+	for _, p := range ps {
+		pEntry := usecase.Patient{
+			ID:        p.ID,
+			Name:      p.Name,
+			Email:     p.Email,
+			Birthday:  p.Birthday,
+			CreatedAt: p.CreatedAt,
+			UpdatedAt: p.UpdatedAt,
+		}
+		psData = append(psData, pEntry)
+	}
+
+	return psData
+}

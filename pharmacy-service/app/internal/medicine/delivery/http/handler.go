@@ -3,7 +3,6 @@ package http
 import (
 	de "github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/domain_error"
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine"
-	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine/usecase"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -53,20 +52,32 @@ func (h *handler) CreateMedicinalProduct() fiber.Handler {
 			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
-		m := usecase.MedicinalProduct{
-			Name:        req.Name,
-			SellName:    req.SellName,
-			ATXCode:     req.ATXCode,
-			Description: req.Description,
-			Quantity:    req.Quantity,
-			MaxQuantity: req.MaxQuantity,
-		}
-
-		err := h.uc.CreateMedicine(ctx.Context(), m)
+		err := h.uc.CreateMedicinalProduct(ctx.Context(), MapCreateMedicinalProductRequest(req))
 		if err != nil {
 			return err.ToHTTPError(ctx)
 		}
 
 		return de.OK.ToHTTPError(ctx)
+	}
+}
+
+func (h *handler) FetchPatients() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		var req FetchPatientsRequest
+
+		if err := ctx.QueryParser(&req); err != nil {
+			return de.ErrParseRequestBody.ToHTTPError(ctx)
+		}
+
+		if err := h.v.Struct(&req); err != nil {
+			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
+		}
+
+		ps, hasNext, dErr := h.uc.FetchPatients(ctx.Context(), req.Limit, req.Offset, req.Name)
+		if dErr != nil {
+			return dErr.ToHTTPError(ctx)
+		}
+
+		return ctx.Status(fiber.StatusOK).JSON(MapFetchPatientsResponse(ps, hasNext))
 	}
 }

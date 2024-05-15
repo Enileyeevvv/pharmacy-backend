@@ -28,8 +28,50 @@ const (
 
 	queryCreateMedicalProduct = `
 		insert into medicinal_products
-		(name, sell_name, atx_code, description, quantity, max_quantity)
-		values ($1, $2, $3, $4, $5, $6)
-		on conflict do nothing;
+		(name, sell_name, atx_code, description, quantity, max_quantity, pharmaceutical_group_id)
+		values ($1, $2, $3, $4, $5, $6, $7)
+		returning id;
+`
+
+	queryCheckMedicinalProductExists = `
+		select id
+		from medicinal_products
+		where (trim(lower(name))) = $1
+		  and (trim(lower(sell_name))) = $2;
+`
+
+	queryCheckCompanyExists = `
+		select id
+		from company
+		where (trim(lower(name))) = $1;
+`
+
+	queryCreateCompany = `
+		insert into company 
+		    (name) 
+		values ($1) 
+		returning id;
+`
+
+	queryUpsertMedicinalProductCompany = `
+		insert into medicinal_product_company
+			(medicinal_product_id, company_id, image_url)
+		values ($1, $2, $3)
+		on conflict (medicinal_product_id, company_id) 
+		    do update 
+		    set image_url = excluded.image_url;
+`
+
+	queryFetchPatients = `
+		select p.id as id,
+			   p.name as name,
+			   p.email as email,
+			   p.birthday as birthday,
+			   p.createdat as created_at,
+			   p.updatedat as updated_at
+		from patient p
+		where ($3::text is null or name = $3::text)
+		order by id
+		limit ($1 + 1) offset ($1 * ($2 - 1));
 `
 )
