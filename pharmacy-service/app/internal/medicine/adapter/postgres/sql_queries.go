@@ -105,13 +105,13 @@ const (
 			   ps.expiredAt as expired_at
 		
 		from prescriptions ps
-			join medicinal_products mp
+			left join medicinal_products mp
 				on ps.medicinalProductID = mp.id
-			join users ds
+			left join users ds
 				on ps.doctorID = ds.id and ds.role_id = 1
-			join patient p
+			left join patient p
 				on ps.patientID = p.id
-			join users phs
+			left join users phs
 				 on ps.doctorID = phs.id and phs.role_id = 2
 		order by id
 		limit ($1 + 1) offset ($1 * ($2 - 1));
@@ -136,14 +136,14 @@ const (
 			   ps.expiredAt as expired_at
 		
 		from prescriptions ps
-			join medicinal_products mp
+			left join medicinal_products mp
 				on ps.medicinalProductID = mp.id
-			join users ds
+			left join users ds
 				on ps.doctorID = ds.id and ds.role_id = 1
-			join patient p
+			left join patient p
 				on ps.patientID = p.id
-			join users phs
+			left join users phs
 				 on ps.doctorID = phs.id and phs.role_id = 2
-		where id = $1;
+		where ps.id = $1;
 `
 )
