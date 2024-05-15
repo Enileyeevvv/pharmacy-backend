@@ -118,3 +118,7 @@ func (u *UseCase) GetPrescription(ctx context.Context, id int) (Prescription, *d
 
 	return p, nil
 }
+
+func (u *UseCase) CreatePrescription(ctx context.Context, p Prescription) *de.DomainError {
+	return u.pgAdp.CreatePrescription(ctx, p)
+}

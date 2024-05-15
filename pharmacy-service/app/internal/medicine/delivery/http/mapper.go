@@ -1,6 +1,9 @@
 package http
 
-import "github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine/usecase"
+import (
+	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine/usecase"
+	"time"
+)
 
 func MapCreateMedicinalProductRequest(req CreateMedicinalProductRequest) usecase.MedicinalProduct {
 	return usecase.MedicinalProduct{
@@ -136,5 +139,57 @@ func MapFetchPrescriptionsResponse(ps []usecase.Prescription, hasNext bool) Fetc
 	return FetchPrescriptionsResponse{
 		HasNext: hasNext,
 		Data:    psData,
+	}
+}
+
+func MapCreateSinglePrescriptionRequest(
+	req CreateSinglePrescriptionRequest,
+	doctorID int,
+) usecase.Prescription {
+	expiredAt := time.Now().Unix()
+
+	switch req.StampID {
+	case 1:
+		expiredAt = time.Now().Add(365 * 24 * time.Hour).Unix()
+	case 2:
+		expiredAt = time.Now().Add(30 * 24 * time.Hour).Unix()
+	case 3:
+		expiredAt = time.Now().Add(15 * 24 * time.Hour).Unix()
+	}
+
+	return usecase.Prescription{
+		StampID:                  req.StampID,
+		TypeID:                   1,
+		MedicinalProductID:       req.MedicinalProductID,
+		MedicinalProductQuantity: req.QuantityForCourse,
+		DoctorID:                 doctorID,
+		PatientID:                req.PatientID,
+		ExpiredAt:                int(expiredAt),
+	}
+}
+
+func MapCreateMultiplePrescriptionRequest(
+	req CreateMultiplePrescriptionRequest,
+	doctorID int,
+) usecase.Prescription {
+	expiredAt := time.Now().Unix()
+
+	switch req.StampID {
+	case 1:
+		expiredAt = time.Now().Add(365 * 24 * time.Hour).Unix()
+	case 2:
+		expiredAt = time.Now().Add(30 * 24 * time.Hour).Unix()
+	case 3:
+		expiredAt = time.Now().Add(15 * 24 * time.Hour).Unix()
+	}
+
+	return usecase.Prescription{
+		StampID:                  req.StampID,
+		TypeID:                   2,
+		MedicinalProductID:       req.MedicinalProductID,
+		MedicinalProductQuantity: req.QuantityInDose * req.DoseCount,
+		DoctorID:                 doctorID,
+		PatientID:                req.PatientID,
+		ExpiredAt:                int(expiredAt),
 	}
 }

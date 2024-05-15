@@ -21,4 +21,6 @@ func MapMedicineRoots(a *fiber.App, uH user.Handler, mH medicine.Handler) {
 	prescription := v1.Group("/prescription")
 	prescription.Get("/", mH.FetchPrescriptions())
 	prescription.Get("/:id", mH.GetPrescription())
+	prescription.Post("/single/create", uH.AuthMW(), uH.RoleMW(user.DOCTOR), mH.CreateSinglePrescription())
+	prescription.Post("/multiple/create", uH.AuthMW(), uH.RoleMW(user.DOCTOR), mH.CreateMultiplePrescription())
 }

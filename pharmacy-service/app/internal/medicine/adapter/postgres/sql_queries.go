@@ -112,7 +112,7 @@ const (
 			left join patient p
 				on ps.patientID = p.id
 			left join users phs
-				 on ps.doctorID = phs.id and phs.role_id = 2
+				 on ps.pharmacistID = phs.id and phs.role_id = 2
 		order by id
 		limit ($1 + 1) offset ($1 * ($2 - 1));
 `
@@ -143,7 +143,21 @@ const (
 			left join patient p
 				on ps.patientID = p.id
 			left join users phs
-				 on ps.doctorID = phs.id and phs.role_id = 2
+				 on ps.pharmacistID = phs.id and phs.role_id = 2
 		where ps.id = $1;
+`
+
+	queryCreatePrescription = `
+		insert into prescriptions
+			(stampID,
+			 typeID,
+			 statusID,
+			 medicinalProductID,
+			 medicinalProductQuantity,
+			 doctorID,
+			 patientID,
+			 pharmacistID,
+			 expiredAt)
+		values ($1, $2, 1, $3, $4, $5, $6, null, $7);
 `
 )

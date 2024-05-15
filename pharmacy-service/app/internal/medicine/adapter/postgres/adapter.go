@@ -201,3 +201,22 @@ func (a *adapter) GetPrescription(ctx context.Context, id int) (usecase.Prescrip
 
 	return MapPrescription(p), nil
 }
+
+func (a *adapter) CreatePrescription(ctx context.Context, p usecase.Prescription) *de.DomainError {
+	_, err := a.db.ExecContext(
+		ctx,
+		queryCreatePrescription,
+		p.StampID,
+		p.TypeID,
+		p.MedicinalProductID,
+		p.MedicinalProductQuantity,
+		p.DoctorID,
+		p.PatientID,
+		p.ExpiredAt)
+	if err != nil {
+		log.Error(err)
+		return de.ErrCreatePrescription
+	}
+
+	return nil
+}

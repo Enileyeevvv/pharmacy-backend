@@ -9,4 +9,6 @@ type Handler interface {
 	GetPatient() fiber.Handler
 	FetchPrescriptions() fiber.Handler
 	GetPrescription() fiber.Handler
+	CreateSinglePrescription() fiber.Handler
+	CreateMultiplePrescription() fiber.Handler
 }

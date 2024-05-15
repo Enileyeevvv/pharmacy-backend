@@ -17,4 +17,5 @@ type PGAdapter interface {
 	GetPatient(ctx context.Context, id int) (Patient, *de.DomainError)
 	FetchPrescriptions(ctx context.Context, limit, offset int) ([]Prescription, *de.DomainError)
 	GetPrescription(ctx context.Context, id int) (Prescription, *de.DomainError)
+	CreatePrescription(ctx context.Context, p Prescription) *de.DomainError
 }
