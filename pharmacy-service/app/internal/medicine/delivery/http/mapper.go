@@ -193,3 +193,19 @@ func MapCreateMultiplePrescriptionRequest(
 		ExpiredAt:                int(expiredAt),
 	}
 }
+
+func MapSubmitPrescriptionRequest(req SubmitPrescriptionRequest, pharmacistID int) usecase.Prescription {
+	return usecase.Prescription{
+		ID:           req.ID,
+		StatusID:     3,
+		PharmacistID: &pharmacistID,
+	}
+}
+
+func MapCancelPrescriptionRequest(req CancelPrescriptionRequest, pharmacistID int) usecase.Prescription {
+	return usecase.Prescription{
+		ID:           req.ID,
+		StatusID:     2,
+		PharmacistID: &pharmacistID,
+	}
+}

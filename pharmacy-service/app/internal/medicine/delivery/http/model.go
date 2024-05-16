@@ -110,3 +110,11 @@ type CreateMultiplePrescriptionRequest struct {
 	QuantityInDose     int `json:"quantityInDose" validate:"required"`
 	DoseCount          int `json:"doseCount" validate:"required"`
 }
+
+type SubmitPrescriptionRequest struct {
+	ID int `json:"id" validate:"required"`
+}
+
+type CancelPrescriptionRequest struct {
+	ID int `json:"id" validate:"required"`
+}

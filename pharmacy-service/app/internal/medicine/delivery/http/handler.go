@@ -189,3 +189,55 @@ func (h *handler) CreateMultiplePrescription() fiber.Handler {
 		return de.OK.ToHTTPError(ctx)
 	}
 }
+
+func (h *handler) SubmitPrescription() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		var req SubmitPrescriptionRequest
+
+		if err := ctx.BodyParser(&req); err != nil {
+			return de.ErrParseRequestBody.ToHTTPError(ctx)
+		}
+
+		if err := h.v.Struct(&req); err != nil {
+			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
+		}
+
+		userID, ok := (ctx.Locals("userID")).(int)
+		if !ok {
+			return de.ErrInvalidUserID.ToHTTPError(ctx)
+		}
+
+		dErr := h.uc.CheckoutPrescription(ctx.Context(), MapSubmitPrescriptionRequest(req, userID))
+		if dErr != nil {
+			return dErr.ToHTTPError(ctx)
+		}
+
+		return de.OK.ToHTTPError(ctx)
+	}
+}
+
+func (h *handler) CancelPrescription() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		var req CancelPrescriptionRequest
+
+		if err := ctx.BodyParser(&req); err != nil {
+			return de.ErrParseRequestBody.ToHTTPError(ctx)
+		}
+
+		if err := h.v.Struct(&req); err != nil {
+			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
+		}
+
+		userID, ok := (ctx.Locals("userID")).(int)
+		if !ok {
+			return de.ErrInvalidUserID.ToHTTPError(ctx)
+		}
+
+		dErr := h.uc.CheckoutPrescription(ctx.Context(), MapCancelPrescriptionRequest(req, userID))
+		if dErr != nil {
+			return dErr.ToHTTPError(ctx)
+		}
+
+		return de.OK.ToHTTPError(ctx)
+	}
+}

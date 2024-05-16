@@ -23,4 +23,6 @@ func MapMedicineRoots(a *fiber.App, uH user.Handler, mH medicine.Handler) {
 	prescription.Get("/:id", mH.GetPrescription())
 	prescription.Post("/single/create", uH.AuthMW(), uH.RoleMW(user.DOCTOR), mH.CreateSinglePrescription())
 	prescription.Post("/multiple/create", uH.AuthMW(), uH.RoleMW(user.DOCTOR), mH.CreateMultiplePrescription())
+	prescription.Post("/submit", uH.AuthMW(), uH.RoleMW(user.PHARMACIST), mH.SubmitPrescription())
+	prescription.Post("/cancel", uH.AuthMW(), uH.RoleMW(user.PHARMACIST), mH.CancelPrescription())
 }

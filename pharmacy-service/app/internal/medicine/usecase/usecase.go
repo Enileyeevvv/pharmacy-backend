@@ -122,3 +122,7 @@ func (u *UseCase) GetPrescription(ctx context.Context, id int) (Prescription, *d
 func (u *UseCase) CreatePrescription(ctx context.Context, p Prescription) *de.DomainError {
 	return u.pgAdp.CreatePrescription(ctx, p)
 }
+
+func (u *UseCase) CheckoutPrescription(ctx context.Context, p Prescription) *de.DomainError {
+	return u.pgAdp.CheckoutPrescription(ctx, p.ID, *p.PharmacistID, p.StatusID)
+}

@@ -39,6 +39,8 @@ var (
 	ErrFetchPrescriptions            = NewDomainError(dc.Internal, "error fetching prescriptions")
 	ErrGetPrescription               = NewDomainError(dc.Internal, "error getting prescription")
 	ErrCreatePrescription            = NewDomainError(dc.Internal, "error creating prescription")
+	ErrCheckoutPrescription          = NewDomainError(dc.Internal, "error checking out prescription")
+	ErrUpdatePrescriptionHistory     = NewDomainError(dc.Internal, "error updating prescription history")
 
 	ErrIncorrectPathParam = NewDomainError(dc.BadRequest, "incorrect path param")
 )

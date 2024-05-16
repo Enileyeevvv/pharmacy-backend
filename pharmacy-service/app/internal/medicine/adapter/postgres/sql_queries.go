@@ -158,6 +158,21 @@ const (
 			 patientID,
 			 pharmacistID,
 			 expiredAt)
-		values ($1, $2, 1, $3, $4, $5, $6, null, $7);
+		values ($1, $2, 1, $3, $4, $5, $6, null, $7)
+		returning id;
+`
+
+	queryCheckoutPrescription = `
+		update prescriptions 
+		set pharmacistid = $2,
+		    statusid = $3
+		where id = $1
+		returning doctorid;
+`
+
+	queryUpdatePrescriptionHistory = `
+		insert into prescription_history
+		(prescription_id, status_id, doctor_id, pharmacist_id)
+		values ($1, $2, $3, $4);
 `
 )

@@ -203,8 +203,11 @@ func (a *adapter) GetPrescription(ctx context.Context, id int) (usecase.Prescrip
 }
 
 func (a *adapter) CreatePrescription(ctx context.Context, p usecase.Prescription) *de.DomainError {
-	_, err := a.db.ExecContext(
+	var pID int
+
+	err := a.db.GetContext(
 		ctx,
+		&pID,
 		queryCreatePrescription,
 		p.StampID,
 		p.TypeID,
@@ -216,6 +219,53 @@ func (a *adapter) CreatePrescription(ctx context.Context, p usecase.Prescription
 	if err != nil {
 		log.Error(err)
 		return de.ErrCreatePrescription
+	}
+
+	p.ID = pID
+	p.StatusID = 1
+
+	return a.updatePrescriptionHistory(ctx, p)
+}
+
+func (a *adapter) CheckoutPrescription(
+	ctx context.Context,
+	prescriptionID, pharmacistID, statusID int,
+) *de.DomainError {
+	var doctorID int
+
+	err := a.db.GetContext(
+		ctx,
+		&doctorID,
+		queryCheckoutPrescription,
+		prescriptionID,
+		pharmacistID,
+		statusID)
+	if err != nil {
+		log.Error(err)
+		return de.ErrCheckoutPrescription
+	}
+
+	p := usecase.Prescription{
+		ID:           prescriptionID,
+		StatusID:     statusID,
+		DoctorID:     doctorID,
+		PharmacistID: &pharmacistID,
+	}
+
+	return a.updatePrescriptionHistory(ctx, p)
+}
+
+func (a *adapter) updatePrescriptionHistory(ctx context.Context, p usecase.Prescription) *de.DomainError {
+	_, err := a.db.ExecContext(
+		ctx,
+		queryUpdatePrescriptionHistory,
+		p.ID,
+		p.StatusID,
+		p.DoctorID,
+		p.PharmacistID)
+	if err != nil {
+		log.Error(err)
+		return de.ErrUpdatePrescriptionHistory
 	}
 
 	return nil

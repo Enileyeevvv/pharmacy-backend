@@ -11,4 +11,6 @@ type Handler interface {
 	GetPrescription() fiber.Handler
 	CreateSinglePrescription() fiber.Handler
 	CreateMultiplePrescription() fiber.Handler
+	SubmitPrescription() fiber.Handler
+	CancelPrescription() fiber.Handler
 }
