@@ -112,7 +112,12 @@ func (h *handler) FetchPrescriptions() fiber.Handler {
 			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
-		ps, hasNext, dErr := h.uc.FetchPrescriptions(ctx.Context(), req.Limit, req.Offset)
+		ps, hasNext, dErr := h.uc.FetchPrescriptions(
+			ctx.Context(),
+			req.Limit,
+			req.Offset,
+			req.PatientID,
+			req.PatientName)
 		if dErr != nil {
 			return dErr.ToHTTPError(ctx)
 		}

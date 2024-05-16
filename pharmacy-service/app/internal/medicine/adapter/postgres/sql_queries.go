@@ -113,6 +113,10 @@ const (
 				on ps.patientID = p.id
 			left join users phs
 				 on ps.pharmacistID = phs.id and phs.role_id = 2
+
+		where ($3::int is null or ps.patientid = $3::int)
+		  and ($4::text is null or $4::text = '' or p.name = $4::text)
+
 		order by id
 		limit ($1 + 1) offset ($1 * ($2 - 1));
 `

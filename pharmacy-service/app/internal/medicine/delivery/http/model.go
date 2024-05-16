@@ -64,8 +64,10 @@ type GetPatientResponse struct {
 }
 
 type FetchPrescriptionsRequest struct {
-	Limit  int `query:"limit" validate:"required"`
-	Offset int `query:"offset" validate:"required"`
+	Limit       int     `query:"limit" validate:"required"`
+	Offset      int     `query:"offset" validate:"required"`
+	PatientID   *int    `query:"patientID"`
+	PatientName *string `query:"patientName"`
 }
 
 type Prescription struct {

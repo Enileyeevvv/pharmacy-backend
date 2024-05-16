@@ -95,8 +95,10 @@ func (u *UseCase) GetPatient(ctx context.Context, id int) (Patient, *de.DomainEr
 func (u *UseCase) FetchPrescriptions(
 	ctx context.Context,
 	limit, offset int,
+	patientID *int,
+	patientName *string,
 ) ([]Prescription, bool, *de.DomainError) {
-	ps, err := u.pgAdp.FetchPrescriptions(ctx, limit, offset)
+	ps, err := u.pgAdp.FetchPrescriptions(ctx, limit, offset, patientID, patientName)
 	if err != nil {
 		return nil, false, err
 	}

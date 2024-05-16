@@ -168,10 +168,22 @@ func (a *adapter) GetPatient(ctx context.Context, id int) (usecase.Patient, *de.
 	return MapPatient(patient), nil
 }
 
-func (a *adapter) FetchPrescriptions(ctx context.Context, limit, offset int) ([]usecase.Prescription, *de.DomainError) {
+func (a *adapter) FetchPrescriptions(
+	ctx context.Context,
+	limit, offset int,
+	patientID *int,
+	patientName *string,
+) ([]usecase.Prescription, *de.DomainError) {
 	var ps []Prescription
 
-	err := a.db.SelectContext(ctx, &ps, queryFetchPrescriptions, limit, offset)
+	err := a.db.SelectContext(
+		ctx,
+		&ps,
+		queryFetchPrescriptions,
+		limit,
+		offset,
+		patientID,
+		patientName)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return make([]usecase.Prescription, 0), nil
