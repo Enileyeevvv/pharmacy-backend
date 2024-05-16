@@ -241,3 +241,30 @@ func (h *handler) CancelPrescription() fiber.Handler {
 		return de.OK.ToHTTPError(ctx)
 	}
 }
+
+func (h *handler) FetchPrescriptionHistory() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		prescriptionIDParam := ctx.Params("id")
+		prescriptionID, err := strconv.Atoi(prescriptionIDParam)
+		if err != nil {
+			return de.ErrIncorrectPathParam.ToHTTPError(ctx)
+		}
+
+		var req FetchPrescriptionHistoryRequest
+
+		if err = ctx.QueryParser(&req); err != nil {
+			return de.ErrParseRequestBody.ToHTTPError(ctx)
+		}
+
+		if err = h.v.Struct(&req); err != nil {
+			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
+		}
+
+		ps, hasNext, dErr := h.uc.FetchPrescriptionHistory(ctx.Context(), req.Limit, req.Offset, prescriptionID)
+		if dErr != nil {
+			return dErr.ToHTTPError(ctx)
+		}
+
+		return ctx.Status(fiber.StatusOK).JSON(MapFetchPrescriptionHistoryResponse(ps, hasNext))
+	}
+}

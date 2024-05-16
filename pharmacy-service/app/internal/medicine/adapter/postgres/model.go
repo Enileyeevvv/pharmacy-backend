@@ -44,3 +44,14 @@ type Prescription struct {
 	UpdatedAt                int            `db:"updated_at"`
 	ExpiredAt                int            `db:"expired_at"`
 }
+
+type PrescriptionHistory struct {
+	ID             int            `db:"id"`
+	PrescriptionID int            `db:"prescription_id"`
+	DoctorID       int            `db:"doctor_id"`
+	DoctorName     string         `db:"doctor_name"`
+	PharmacistID   sql.NullInt64  `db:"pharmacist_id"`
+	PharmacistName sql.NullString `db:"pharmacist_name"`
+	StatusID       int            `db:"status_id"`
+	UpdatedAt      int            `db:"updated_at"`
+}

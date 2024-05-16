@@ -270,3 +270,23 @@ func (a *adapter) updatePrescriptionHistory(ctx context.Context, p usecase.Presc
 
 	return nil
 }
+
+func (a *adapter) FetchPrescriptionHistory(
+	ctx context.Context,
+	limit, offset, pID int,
+) ([]usecase.PrescriptionHistory, *de.DomainError) {
+	var ps []PrescriptionHistory
+
+	err := a.db.SelectContext(ctx, &ps, queryFetchPrescriptionHistory, limit, offset, pID)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return make([]usecase.PrescriptionHistory, 0), nil
+	}
+
+	if err != nil {
+		log.Error(err)
+		return nil, de.ErrFetchPrescriptionHistory
+	}
+
+	return MapPrescriptionHistory(ps), nil
+}

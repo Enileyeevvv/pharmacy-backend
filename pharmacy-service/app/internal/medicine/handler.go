@@ -13,4 +13,5 @@ type Handler interface {
 	CreateMultiplePrescription() fiber.Handler
 	SubmitPrescription() fiber.Handler
 	CancelPrescription() fiber.Handler
+	FetchPrescriptionHistory() fiber.Handler
 }

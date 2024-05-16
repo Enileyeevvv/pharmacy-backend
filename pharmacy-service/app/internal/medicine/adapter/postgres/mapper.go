@@ -109,3 +109,40 @@ func MapPrescriptions(ps []Prescription) []usecase.Prescription {
 
 	return res
 }
+
+func MapPrescriptionHistory(pH []PrescriptionHistory) []usecase.PrescriptionHistory {
+	if pH == nil {
+		return make([]usecase.PrescriptionHistory, 0)
+	}
+
+	res := make([]usecase.PrescriptionHistory, 0)
+
+	for _, h := range pH {
+		var phIDPointer *int = nil
+		if h.PharmacistID.Valid {
+			phID := int(h.PharmacistID.Int64)
+			phIDPointer = &phID
+		}
+
+		var phNamePointer *string = nil
+		if h.PharmacistName.Valid {
+			phName := h.PharmacistName.String
+			phNamePointer = &phName
+		}
+
+		history := usecase.PrescriptionHistory{
+			ID:             h.ID,
+			PrescriptionID: h.PrescriptionID,
+			DoctorID:       h.DoctorID,
+			DoctorName:     h.DoctorName,
+			PharmacistID:   phIDPointer,
+			PharmacistName: phNamePointer,
+			StatusID:       h.StatusID,
+			UpdatedAt:      h.UpdatedAt,
+		}
+
+		res = append(res, history)
+	}
+
+	return res
+}

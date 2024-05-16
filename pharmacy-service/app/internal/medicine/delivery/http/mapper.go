@@ -209,3 +209,26 @@ func MapCancelPrescriptionRequest(req CancelPrescriptionRequest, pharmacistID in
 		PharmacistID: &pharmacistID,
 	}
 }
+
+func MapFetchPrescriptionHistoryResponse(ps []usecase.PrescriptionHistory, hasNext bool) FetchPrescriptionHistoryResponse {
+	psData := make([]PrescriptionHistory, 0)
+	if ps != nil {
+		for _, p := range ps {
+			pEntry := PrescriptionHistory{
+				DoctorID:       p.DoctorID,
+				DoctorName:     p.DoctorName,
+				PharmacistID:   p.PharmacistID,
+				PharmacistName: p.PharmacistName,
+				StatusID:       p.StatusID,
+				UpdatedAt:      p.UpdatedAt,
+			}
+
+			psData = append(psData, pEntry)
+		}
+	}
+
+	return FetchPrescriptionHistoryResponse{
+		HasNext: hasNext,
+		Data:    psData,
+	}
+}

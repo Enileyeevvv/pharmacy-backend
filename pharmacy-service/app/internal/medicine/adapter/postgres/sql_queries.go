@@ -175,4 +175,23 @@ const (
 		(prescription_id, status_id, doctor_id, pharmacist_id)
 		values ($1, $2, $3, $4);
 `
+
+	queryFetchPrescriptionHistory = `
+		select ph.id                as id,
+			   ph.prescription_id   as prescription_id,
+			   ph.doctor_id         as doctor_id,
+			   ds.login             as doctor_name,
+			   ph.pharmacist_id     as pharmacist_id,
+			   phs.login            as pharmacist_name,
+			   ph.status_id         as status_id,
+			   ph.updated_at        as updated_at
+		from prescription_history ph
+			left join users ds
+				on ph.doctor_id = ds.id
+			left join users phs
+				on ph.pharmacist_id = phs.id
+		where prescription_id = $3
+		order by ph.updated_at desc
+		limit ($1 + 1) offset ($1 * ($2 - 1));
+`
 )

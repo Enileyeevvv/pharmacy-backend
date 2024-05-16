@@ -42,3 +42,14 @@ type Prescription struct {
 	UpdatedAt                int
 	ExpiredAt                int
 }
+
+type PrescriptionHistory struct {
+	ID             int
+	PrescriptionID int
+	DoctorID       int
+	DoctorName     string
+	PharmacistID   *int
+	PharmacistName *string
+	StatusID       int
+	UpdatedAt      int
+}

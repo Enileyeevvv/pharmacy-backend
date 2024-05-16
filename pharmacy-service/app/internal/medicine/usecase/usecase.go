@@ -126,3 +126,21 @@ func (u *UseCase) CreatePrescription(ctx context.Context, p Prescription) *de.Do
 func (u *UseCase) CheckoutPrescription(ctx context.Context, p Prescription) *de.DomainError {
 	return u.pgAdp.CheckoutPrescription(ctx, p.ID, *p.PharmacistID, p.StatusID)
 }
+
+func (u *UseCase) FetchPrescriptionHistory(
+	ctx context.Context,
+	limit, offset, pID int,
+) ([]PrescriptionHistory, bool, *de.DomainError) {
+	ps, err := u.pgAdp.FetchPrescriptionHistory(ctx, limit, offset, pID)
+	if err != nil {
+		return nil, false, err
+	}
+
+	hasNext := false
+	if len(ps) > limit {
+		hasNext = true
+		ps = ps[:len(ps)-1]
+	}
+
+	return ps, hasNext, nil
+}

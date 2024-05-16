@@ -15,4 +15,8 @@ type UseCase interface {
 	GetPrescription(ctx context.Context, id int) (usecase.Prescription, *de.DomainError)
 	CreatePrescription(ctx context.Context, p usecase.Prescription) *de.DomainError
 	CheckoutPrescription(ctx context.Context, p usecase.Prescription) *de.DomainError
+	FetchPrescriptionHistory(
+		ctx context.Context,
+		limit, offset, pID int,
+	) ([]usecase.PrescriptionHistory, bool, *de.DomainError)
 }

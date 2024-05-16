@@ -118,3 +118,22 @@ type SubmitPrescriptionRequest struct {
 type CancelPrescriptionRequest struct {
 	ID int `json:"id" validate:"required"`
 }
+
+type FetchPrescriptionHistoryRequest struct {
+	Limit  int `json:"limit" validate:"required"`
+	Offset int `json:"offset" validate:"required"`
+}
+
+type PrescriptionHistory struct {
+	DoctorID       int     `json:"doctorID"`
+	DoctorName     string  `json:"doctorName"`
+	PharmacistID   *int    `json:"pharmacistID"`
+	PharmacistName *string `json:"pharmacistName"`
+	StatusID       int     `json:"statusID"`
+	UpdatedAt      int     `json:"updatedAt"`
+}
+
+type FetchPrescriptionHistoryResponse struct {
+	HasNext bool                  `json:"hasNext"`
+	Data    []PrescriptionHistory `json:"data"`
+}
