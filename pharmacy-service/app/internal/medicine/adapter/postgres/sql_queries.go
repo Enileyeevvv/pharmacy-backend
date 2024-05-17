@@ -14,16 +14,48 @@ const (
 			   c.id as company_id,
 			   c.name as company_name,
 			   mpc.image_url as image_url
+			   df.id as dosage_form_id,
+			   df.name as dosage_form_name,
 	
 		from medicinal_product_company mpc
-			join medicinal_products mp
+			left join medicinal_products mp
 				on mp.id = mpc.medicinal_product_id
-			join company c
+			left join company c
 				on mpc.company_id = c.id
-			join pharmaceutical_group pg
+			left join pharmaceutical_group pg
 				on mp.pharmaceutical_group_id = pg.id
+			left join dosage_form df
+				on mpc.dosage_form_id = df.id
 		order by id
 		limit ($1 + 1) offset ($1 * ($2 - 1));
+`
+
+	queryGetMedicinalProduct = `
+		select mp.id as id,
+			   mp.name as name,
+			   mp.sell_name as sell_name,
+			   mp.atx_code as atx_code,
+			   mp.description as description,
+			   mp.pharmaceutical_group_id as pharmaceutical_group_id,
+			   pg.name as pharmaceutical_group_name,
+			   mp.quantity as quantity,
+			   mp.max_quantity as max_quantity,
+			   c.id as company_id,
+			   c.name as company_name,
+			   mpc.image_url as image_url,
+			   df.id as dosage_form_id,
+			   df.name as dosage_form_name,
+	
+		from medicinal_product_company mpc
+			left join medicinal_products mp
+				on mp.id = mpc.medicinal_product_id
+			left join company c
+				on mpc.company_id = c.id
+			left join pharmaceutical_group pg
+				on mp.pharmaceutical_group_id = pg.id
+			left join dosage_form df
+				on mpc.dosage_form_id = df.id
+		where mp.id = $1;
 `
 
 	queryCreateMedicalProduct = `
@@ -55,11 +87,12 @@ const (
 
 	queryUpsertMedicinalProductCompany = `
 		insert into medicinal_product_company
-			(medicinal_product_id, company_id, image_url)
-		values ($1, $2, $3)
+			(medicinal_product_id, company_id, image_url, dosage_form_id)
+		values ($1, $2, $3, $4)
 		on conflict (medicinal_product_id, company_id) 
 		    do update 
-		    set image_url = excluded.image_url;
+		    set image_url = excluded.image_url,
+		        dosage_form_id = excluded.dosage_form_id;
 `
 
 	queryFetchPatients = `
@@ -163,7 +196,19 @@ const (
 			 pharmacistID,
 			 expiredAt)
 		values ($1, $2, 1, $3, $4, $5, $6, null, $7)
-		returning id;
+		returning 
+		    id as id, 
+		    stampid as stamp_id, 
+		    typeid as type_id, 
+		    statusid as status_id, 
+		    medicinalproductid as medicinal_product_id, 
+		    medicinalproductquantity as medicinal_product_quantity,
+		    patientid as patient_id,
+		    doctorid as doctor_id,
+		    pharmacistid as pharmacist_id,
+		    createdat as created_at,
+		    updatedat as updated_at,
+		    expiredat as expired_at;
 `
 
 	queryCheckoutPrescription = `
@@ -171,7 +216,19 @@ const (
 		set pharmacistid = $2,
 		    statusid = $3
 		where id = $1
-		returning doctorid;
+		returning 
+		    id as id, 
+		    stampid as stamp_id, 
+		    typeid as type_id, 
+		    statusid as status_id, 
+		    medicinalproductid as medicinal_product_id, 
+		    medicinalproductquantity as medicinal_product_quantity,
+		    patientid as patient_id,
+		    doctorid as doctor_id,
+		    pharmacistid as pharmacist_id,
+		    createdat as created_at,
+		    updatedat as updated_at,
+		    expiredat as expired_at;
 `
 
 	queryUpdatePrescriptionHistory = `
@@ -197,5 +254,17 @@ const (
 		where prescription_id = $3
 		order by ph.updated_at desc
 		limit ($1 + 1) offset ($1 * ($2 - 1));
+`
+
+	queryAddMedicinalProduct = `
+		update medicinal_products 
+		set quantity = quantity + $2::int
+		where id = $1;
+`
+
+	querySubtractMedicinalProduct = `
+		update medicinal_products 
+		set quantity = quantity - $2
+		where id = $1;
 `
 )

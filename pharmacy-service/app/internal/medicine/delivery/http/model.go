@@ -10,8 +10,9 @@ type CreateMedicinalProductRequest struct {
 
 	PharmaceuticalGroupID int `json:"pharmaceuticalGroupID" validate:"required"`
 
-	CompanyName string `json:"companyName" validate:"required"`
-	ImageURL    string `json:"imageURL" validate:"required"`
+	CompanyName  string `json:"companyName" validate:"required"`
+	ImageURL     string `json:"imageURL" validate:"required"`
+	DosageFormID int    `json:"dosageFormID" validate:"required"`
 }
 
 type FetchMedicinalProductsRequest struct {
@@ -32,6 +33,8 @@ type MedicinalProduct struct {
 	Quantity                int    `json:"quantity"`
 	MaxQuantity             int    `json:"maxQuantity"`
 	ImageURL                string `json:"imageURL"`
+	DosageFormID            int    `json:"dosageFormID"`
+	DosageFormName          string `json:"dosageFormName"`
 }
 
 type FetchMedicinalProductsResponse struct {
@@ -122,8 +125,8 @@ type CancelPrescriptionRequest struct {
 }
 
 type FetchPrescriptionHistoryRequest struct {
-	Limit  int `json:"limit" validate:"required"`
-	Offset int `json:"offset" validate:"required"`
+	Limit  int `query:"limit" validate:"required"`
+	Offset int `query:"offset" validate:"required"`
 }
 
 type PrescriptionHistory struct {
@@ -138,4 +141,9 @@ type PrescriptionHistory struct {
 type FetchPrescriptionHistoryResponse struct {
 	HasNext bool                  `json:"hasNext"`
 	Data    []PrescriptionHistory `json:"data"`
+}
+
+type AddMedicinalProductRequest struct {
+	ID       int `json:"id" validate:"required"`
+	Quantity int `json:"quantity" validate:"required"`
 }

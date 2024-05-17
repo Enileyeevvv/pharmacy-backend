@@ -4,6 +4,25 @@ import (
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine/usecase"
 )
 
+func MapMedicinalProduct(mp MedicinalProduct) usecase.MedicinalProduct {
+	return usecase.MedicinalProduct{
+		ID:                      mp.ID,
+		Name:                    mp.Name,
+		SellName:                mp.SellName,
+		ATXCode:                 mp.ATXCode,
+		Description:             mp.Description,
+		PharmaceuticalGroupID:   mp.PharmaceuticalGroupID,
+		PharmaceuticalGroupName: mp.PharmaceuticalGroupName,
+		CompanyID:               mp.CompanyID,
+		CompanyName:             mp.CompanyName,
+		Quantity:                mp.Quantity,
+		MaxQuantity:             mp.MaxQuantity,
+		ImageURL:                mp.ImageURL,
+		DosageFormID:            mp.DosageFormID,
+		DosageFormName:          mp.DosageFormName,
+	}
+}
+
 func MapMedicinalProductSlice(mps []MedicinalProduct) []usecase.MedicinalProduct {
 	if mps == nil {
 		return make([]usecase.MedicinalProduct, 0)
@@ -11,21 +30,7 @@ func MapMedicinalProductSlice(mps []MedicinalProduct) []usecase.MedicinalProduct
 
 	mpsData := make([]usecase.MedicinalProduct, 0)
 	for _, mp := range mps {
-		mpEntry := usecase.MedicinalProduct{
-			ID:                      mp.ID,
-			Name:                    mp.Name,
-			SellName:                mp.SellName,
-			ATXCode:                 mp.ATXCode,
-			Description:             mp.Description,
-			PharmaceuticalGroupID:   mp.PharmaceuticalGroupID,
-			PharmaceuticalGroupName: mp.PharmaceuticalGroupName,
-			CompanyID:               mp.CompanyID,
-			CompanyName:             mp.CompanyName,
-			Quantity:                mp.Quantity,
-			MaxQuantity:             mp.MaxQuantity,
-			ImageURL:                mp.ImageURL,
-		}
-		mpsData = append(mpsData, mpEntry)
+		mpsData = append(mpsData, MapMedicinalProduct(mp))
 	}
 
 	return mpsData

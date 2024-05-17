@@ -15,6 +15,8 @@ type MedicinalProduct struct {
 	CompanyID               int    `db:"company_id"`
 	CompanyName             string `db:"company_name"`
 	ImageURL                string `db:"image_url"`
+	DosageFormID            int    `db:"dosage_form_id"`
+	DosageFormName          string `db:"dosage_form_name"`
 }
 
 type Patient struct {

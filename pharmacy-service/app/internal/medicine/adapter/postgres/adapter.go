@@ -40,9 +40,64 @@ func (a *adapter) FetchMedicinalProducts(
 	return MapMedicinalProductSlice(mps), nil
 }
 
-func (a *adapter) CheckMedicinalProductExists(ctx context.Context, mp usecase.MedicinalProduct) (int, *de.DomainError) {
+func (a *adapter) CreateMedicinalProductTransaction(ctx context.Context, mp usecase.MedicinalProduct) *de.DomainError {
+	tx, err := a.db.BeginTxx(ctx, nil)
+	if err != nil {
+		log.Error(err)
+		return de.ErrCreateTransaction
+	}
+
+	defer func(tx *sqlx.Tx) {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+			log.Error(err)
+		}
+	}(tx)
+
+	mpID, dErr := a.checkMedicinalProductExists(ctx, tx, mp)
+	if dErr != nil {
+		return dErr
+	}
+	if mpID == -1 {
+		mpID, dErr = a.createMedicinalProduct(ctx, tx, mp)
+		if dErr != nil {
+			return dErr
+		}
+	}
+
+	cID, dErr := a.checkCompanyExists(ctx, tx, mp)
+	if dErr != nil {
+		return dErr
+	}
+	if cID == -1 {
+		cID, dErr = a.createCompany(ctx, tx, mp)
+		if dErr != nil {
+			return dErr
+		}
+	}
+
+	mp.ID = mpID
+	mp.CompanyID = cID
+
+	dErr = a.upsertMedicinalProductCompany(ctx, tx, mp)
+	if dErr != nil {
+		return dErr
+	}
+
+	if err = tx.Commit(); err != nil {
+		log.Error(err)
+		return de.ErrCommitTransaction
+	}
+
+	return nil
+}
+
+func (a *adapter) checkMedicinalProductExists(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	mp usecase.MedicinalProduct,
+) (int, *de.DomainError) {
 	var mpID int
-	err := a.db.GetContext(
+	err := tx.GetContext(
 		ctx,
 		&mpID,
 		queryCheckMedicinalProductExists,
@@ -61,9 +116,13 @@ func (a *adapter) CheckMedicinalProductExists(ctx context.Context, mp usecase.Me
 	return mpID, nil
 }
 
-func (a *adapter) CheckCompanyExists(ctx context.Context, mp usecase.MedicinalProduct) (int, *de.DomainError) {
+func (a *adapter) checkCompanyExists(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	mp usecase.MedicinalProduct,
+) (int, *de.DomainError) {
 	var cID int
-	err := a.db.GetContext(
+	err := tx.GetContext(
 		ctx,
 		&cID,
 		queryCheckCompanyExists,
@@ -81,10 +140,14 @@ func (a *adapter) CheckCompanyExists(ctx context.Context, mp usecase.MedicinalPr
 	return cID, nil
 }
 
-func (a *adapter) CreateMedicinalProduct(ctx context.Context, mp usecase.MedicinalProduct) (int, *de.DomainError) {
+func (a *adapter) createMedicinalProduct(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	mp usecase.MedicinalProduct,
+) (int, *de.DomainError) {
 	var mpID int
 
-	err := a.db.GetContext(
+	err := tx.GetContext(
 		ctx,
 		&mpID,
 		queryCreateMedicalProduct,
@@ -103,10 +166,10 @@ func (a *adapter) CreateMedicinalProduct(ctx context.Context, mp usecase.Medicin
 	return mpID, nil
 }
 
-func (a *adapter) CreateCompany(ctx context.Context, mp usecase.MedicinalProduct) (int, *de.DomainError) {
+func (a *adapter) createCompany(ctx context.Context, tx *sqlx.Tx, mp usecase.MedicinalProduct) (int, *de.DomainError) {
 	var cID int
 
-	err := a.db.GetContext(
+	err := tx.GetContext(
 		ctx,
 		&cID,
 		queryCreateCompany,
@@ -119,13 +182,18 @@ func (a *adapter) CreateCompany(ctx context.Context, mp usecase.MedicinalProduct
 	return cID, nil
 }
 
-func (a *adapter) UpsertMedicinalProductCompany(ctx context.Context, mp usecase.MedicinalProduct) *de.DomainError {
-	_, err := a.db.ExecContext(
+func (a *adapter) upsertMedicinalProductCompany(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	mp usecase.MedicinalProduct,
+) *de.DomainError {
+	_, err := tx.ExecContext(
 		ctx,
 		queryUpsertMedicinalProductCompany,
 		mp.ID,
 		mp.CompanyID,
-		mp.ImageURL)
+		mp.ImageURL,
+		mp.DosageFormID)
 	if err != nil {
 		log.Error(err)
 		return de.ErrUpsertMedicinalProductCompany
@@ -214,12 +282,47 @@ func (a *adapter) GetPrescription(ctx context.Context, id int) (usecase.Prescrip
 	return MapPrescription(p), nil
 }
 
-func (a *adapter) CreatePrescription(ctx context.Context, p usecase.Prescription) *de.DomainError {
-	var pID int
+func (a *adapter) CreatePrescriptionTransaction(ctx context.Context, p usecase.Prescription) *de.DomainError {
+	tx, err := a.db.BeginTxx(ctx, nil)
+	if err != nil {
+		log.Error(err)
+		return de.ErrCreateTransaction
+	}
 
-	err := a.db.GetContext(
+	defer func(tx *sqlx.Tx) {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+			log.Error(err)
+		}
+	}(tx)
+
+	res, dErr := a.createPrescription(ctx, tx, p)
+	if dErr != nil {
+		return dErr
+	}
+
+	dErr = a.updatePrescriptionHistory(ctx, tx, res)
+	if dErr != nil {
+		return dErr
+	}
+
+	if err = tx.Commit(); err != nil {
+		log.Error(err)
+		return de.ErrCommitTransaction
+	}
+
+	return nil
+}
+
+func (a *adapter) createPrescription(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	p usecase.Prescription,
+) (Prescription, *de.DomainError) {
+	var res Prescription
+
+	err := tx.GetContext(
 		ctx,
-		&pID,
+		&res,
 		queryCreatePrescription,
 		p.StampID,
 		p.TypeID,
@@ -230,45 +333,79 @@ func (a *adapter) CreatePrescription(ctx context.Context, p usecase.Prescription
 		p.ExpiredAt)
 	if err != nil {
 		log.Error(err)
-		return de.ErrCreatePrescription
+		return Prescription{}, de.ErrCreatePrescription
 	}
 
-	p.ID = pID
-	p.StatusID = 1
-
-	return a.updatePrescriptionHistory(ctx, p)
+	return res, nil
 }
 
-func (a *adapter) CheckoutPrescription(
-	ctx context.Context,
-	prescriptionID, pharmacistID, statusID int,
-) *de.DomainError {
-	var doctorID int
-
-	err := a.db.GetContext(
-		ctx,
-		&doctorID,
-		queryCheckoutPrescription,
-		prescriptionID,
-		pharmacistID,
-		statusID)
+func (a *adapter) CheckoutPrescriptionTransaction(ctx context.Context, p usecase.Prescription) *de.DomainError {
+	tx, err := a.db.BeginTxx(ctx, nil)
 	if err != nil {
 		log.Error(err)
-		return de.ErrCheckoutPrescription
+		return de.ErrCreateTransaction
 	}
 
-	p := usecase.Prescription{
-		ID:           prescriptionID,
-		StatusID:     statusID,
-		DoctorID:     doctorID,
-		PharmacistID: &pharmacistID,
+	defer func(tx *sqlx.Tx) {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+			log.Error(err)
+		}
+	}(tx)
+
+	res, dErr := a.checkoutPrescription(ctx, tx, p)
+	if dErr != nil {
+		return dErr
 	}
 
-	return a.updatePrescriptionHistory(ctx, p)
+	if res.StatusID == 3 {
+		mp, dErr := a.getMedicinalProduct(ctx, tx, res.MedicinalProductID)
+		if dErr != nil {
+			return dErr
+		}
+
+		dErr = a.subtractMedicinalProduct(ctx, tx, mp, res.MedicinalProductQuantity)
+		if dErr != nil {
+			return dErr
+		}
+	}
+
+	dErr = a.updatePrescriptionHistory(ctx, tx, res)
+	if dErr != nil {
+		return dErr
+	}
+
+	if err = tx.Commit(); err != nil {
+		log.Error(err)
+		return de.ErrCommitTransaction
+	}
+
+	return nil
 }
 
-func (a *adapter) updatePrescriptionHistory(ctx context.Context, p usecase.Prescription) *de.DomainError {
-	_, err := a.db.ExecContext(
+func (a *adapter) checkoutPrescription(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	p usecase.Prescription,
+) (Prescription, *de.DomainError) {
+	var res Prescription
+
+	err := tx.GetContext(
+		ctx,
+		&res,
+		queryCheckoutPrescription,
+		p.ID,
+		p.PharmacistID,
+		p.StatusID)
+	if err != nil {
+		log.Error(err)
+		return Prescription{}, de.ErrCheckoutPrescription
+	}
+
+	return res, nil
+}
+
+func (a *adapter) updatePrescriptionHistory(ctx context.Context, tx *sqlx.Tx, p Prescription) *de.DomainError {
+	_, err := tx.ExecContext(
 		ctx,
 		queryUpdatePrescriptionHistory,
 		p.ID,
@@ -301,4 +438,89 @@ func (a *adapter) FetchPrescriptionHistory(
 	}
 
 	return MapPrescriptionHistory(ps), nil
+}
+
+func (a *adapter) getMedicinalProduct(ctx context.Context, tx *sqlx.Tx, mpID int) (MedicinalProduct, *de.DomainError) {
+	var mp MedicinalProduct
+	err := tx.GetContext(ctx, &mp, queryGetMedicinalProduct, mpID)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return MedicinalProduct{}, nil
+	}
+
+	if err != nil {
+		log.Error(err)
+		return MedicinalProduct{}, de.ErrGetMedicinalProduct
+	}
+
+	return mp, nil
+}
+
+func (a *adapter) AddMedicinalProductTransaction(ctx context.Context, mpID, quantity int) *de.DomainError {
+	tx, err := a.db.BeginTxx(ctx, nil)
+	if err != nil {
+		log.Error(err)
+		return de.ErrCreateTransaction
+	}
+
+	defer func(tx *sqlx.Tx) {
+		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
+			log.Error(err)
+		}
+	}(tx)
+
+	mp, dErr := a.getMedicinalProduct(ctx, tx, mpID)
+	if dErr != nil {
+		return dErr
+	}
+
+	dErr = a.addMedicinalProduct(ctx, tx, mp, quantity)
+	if dErr != nil {
+		return dErr
+	}
+
+	if err = tx.Commit(); err != nil {
+		log.Error(err)
+		return de.ErrCommitTransaction
+	}
+
+	return nil
+}
+
+func (a *adapter) addMedicinalProduct(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	mp MedicinalProduct,
+	quantity int,
+) *de.DomainError {
+	if mp.Quantity+quantity > mp.MaxQuantity {
+		return de.ErrQuantityTooHigh.WithParams("max", mp.MaxQuantity-mp.Quantity)
+	}
+
+	_, err := tx.ExecContext(ctx, queryAddMedicinalProduct, mp.ID, quantity)
+	if err != nil {
+		log.Error(err)
+		return de.ErrAddMedicinalProduct
+	}
+
+	return nil
+}
+
+func (a *adapter) subtractMedicinalProduct(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	mp MedicinalProduct,
+	quantity int,
+) *de.DomainError {
+	if mp.Quantity-quantity < 0 {
+		return de.ErrQuantityTooHigh.WithParams("max", mp.MaxQuantity)
+	}
+
+	_, err := tx.ExecContext(ctx, querySubtractMedicinalProduct, mp.ID, quantity)
+	if err != nil {
+		log.Error(err)
+		return de.ErrSubtractMedicinalProduct
+	}
+
+	return nil
 }

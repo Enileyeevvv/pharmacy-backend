@@ -5,6 +5,7 @@ import (
 	"github.com/Enileyeevvv/pharmacy-backend/pharmacy-service/internal/medicine"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"strconv"
 )
 
@@ -25,10 +26,12 @@ func (h *handler) FetchMedicinalProducts() fiber.Handler {
 		var req FetchMedicinalProductsRequest
 
 		if err := ctx.QueryParser(&req); err != nil {
+			log.Error(err)
 			return de.ErrParseRequestBody.ToHTTPError(ctx)
 		}
 
 		if err := h.v.Struct(&req); err != nil {
+			log.Error(err)
 			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
@@ -46,10 +49,12 @@ func (h *handler) CreateMedicinalProduct() fiber.Handler {
 		var req CreateMedicinalProductRequest
 
 		if err := ctx.BodyParser(&req); err != nil {
+			log.Error(err)
 			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
 		if err := h.v.Struct(&req); err != nil {
+			log.Error(err)
 			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
@@ -67,10 +72,12 @@ func (h *handler) FetchPatients() fiber.Handler {
 		var req FetchPatientsRequest
 
 		if err := ctx.QueryParser(&req); err != nil {
+			log.Error(err)
 			return de.ErrParseRequestBody.ToHTTPError(ctx)
 		}
 
 		if err := h.v.Struct(&req); err != nil {
+			log.Error(err)
 			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
@@ -88,6 +95,7 @@ func (h *handler) GetPatient() fiber.Handler {
 		patientIDParam := ctx.Params("id")
 		patientID, err := strconv.Atoi(patientIDParam)
 		if err != nil {
+			log.Error(err)
 			return de.ErrIncorrectPathParam.ToHTTPError(ctx)
 		}
 
@@ -105,10 +113,12 @@ func (h *handler) FetchPrescriptions() fiber.Handler {
 		var req FetchPrescriptionsRequest
 
 		if err := ctx.QueryParser(&req); err != nil {
+			log.Error(err)
 			return de.ErrParseRequestBody.ToHTTPError(ctx)
 		}
 
 		if err := h.v.Struct(&req); err != nil {
+			log.Error(err)
 			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
@@ -131,6 +141,7 @@ func (h *handler) GetPrescription() fiber.Handler {
 		prescriptionIDParam := ctx.Params("id")
 		prescriptionID, err := strconv.Atoi(prescriptionIDParam)
 		if err != nil {
+			log.Error(err)
 			return de.ErrIncorrectPathParam.ToHTTPError(ctx)
 		}
 
@@ -148,15 +159,18 @@ func (h *handler) CreateSinglePrescription() fiber.Handler {
 		var req CreateSinglePrescriptionRequest
 
 		if err := ctx.BodyParser(&req); err != nil {
+			log.Error(err)
 			return de.ErrParseRequestBody.ToHTTPError(ctx)
 		}
 
 		if err := h.v.Struct(&req); err != nil {
+			log.Error(err)
 			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
 		userID, ok := (ctx.Locals("userID")).(int)
 		if !ok {
+			log.Errorf("invalid userID: %v", userID)
 			return de.ErrInvalidUserID.ToHTTPError(ctx)
 		}
 
@@ -174,15 +188,18 @@ func (h *handler) CreateMultiplePrescription() fiber.Handler {
 		var req CreateMultiplePrescriptionRequest
 
 		if err := ctx.BodyParser(&req); err != nil {
+			log.Error(err)
 			return de.ErrParseRequestBody.ToHTTPError(ctx)
 		}
 
 		if err := h.v.Struct(&req); err != nil {
+			log.Error(err)
 			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
 		userID, ok := (ctx.Locals("userID")).(int)
 		if !ok {
+			log.Errorf("invalid userID: %v", userID)
 			return de.ErrInvalidUserID.ToHTTPError(ctx)
 		}
 
@@ -200,15 +217,18 @@ func (h *handler) SubmitPrescription() fiber.Handler {
 		var req SubmitPrescriptionRequest
 
 		if err := ctx.BodyParser(&req); err != nil {
+			log.Error(err)
 			return de.ErrParseRequestBody.ToHTTPError(ctx)
 		}
 
 		if err := h.v.Struct(&req); err != nil {
+			log.Error(err)
 			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
 		userID, ok := (ctx.Locals("userID")).(int)
 		if !ok {
+			log.Errorf("invalid userID: %v", userID)
 			return de.ErrInvalidUserID.ToHTTPError(ctx)
 		}
 
@@ -226,15 +246,18 @@ func (h *handler) CancelPrescription() fiber.Handler {
 		var req CancelPrescriptionRequest
 
 		if err := ctx.BodyParser(&req); err != nil {
+			log.Error(err)
 			return de.ErrParseRequestBody.ToHTTPError(ctx)
 		}
 
 		if err := h.v.Struct(&req); err != nil {
+			log.Error(err)
 			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
 		userID, ok := (ctx.Locals("userID")).(int)
 		if !ok {
+			log.Error("invalid userID: %v", userID)
 			return de.ErrInvalidUserID.ToHTTPError(ctx)
 		}
 
@@ -252,16 +275,19 @@ func (h *handler) FetchPrescriptionHistory() fiber.Handler {
 		prescriptionIDParam := ctx.Params("id")
 		prescriptionID, err := strconv.Atoi(prescriptionIDParam)
 		if err != nil {
+			log.Error(err)
 			return de.ErrIncorrectPathParam.ToHTTPError(ctx)
 		}
 
 		var req FetchPrescriptionHistoryRequest
 
 		if err = ctx.QueryParser(&req); err != nil {
+			log.Error(err)
 			return de.ErrParseRequestBody.ToHTTPError(ctx)
 		}
 
 		if err = h.v.Struct(&req); err != nil {
+			log.Error(err)
 			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
 		}
 
@@ -271,5 +297,28 @@ func (h *handler) FetchPrescriptionHistory() fiber.Handler {
 		}
 
 		return ctx.Status(fiber.StatusOK).JSON(MapFetchPrescriptionHistoryResponse(ps, hasNext))
+	}
+}
+
+func (h *handler) AddMedicinalProduct() fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		var req AddMedicinalProductRequest
+
+		if err := ctx.BodyParser(&req); err != nil {
+			log.Error(err)
+			return de.ErrParseRequestBody.ToHTTPError(ctx)
+		}
+
+		if err := h.v.Struct(&req); err != nil {
+			log.Error(err)
+			return de.ErrRequestBodyInvalid.ToHTTPError(ctx)
+		}
+
+		dErr := h.uc.AddMedicinalProduct(ctx.Context(), req.ID, req.Quantity)
+		if dErr != nil {
+			return dErr.ToHTTPError(ctx)
+		}
+
+		return de.OK.ToHTTPError(ctx)
 	}
 }

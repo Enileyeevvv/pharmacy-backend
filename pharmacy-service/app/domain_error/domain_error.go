@@ -42,8 +42,13 @@ var (
 	ErrCheckoutPrescription          = NewDomainError(dc.Internal, "error checking out prescription")
 	ErrUpdatePrescriptionHistory     = NewDomainError(dc.Internal, "error updating prescription history")
 	ErrFetchPrescriptionHistory      = NewDomainError(dc.Internal, "error fetching prescription history")
-
-	ErrIncorrectPathParam = NewDomainError(dc.BadRequest, "incorrect path param")
+	ErrGetMedicinalProduct           = NewDomainError(dc.Internal, "error getting medicinal product")
+	ErrAddMedicinalProduct           = NewDomainError(dc.Internal, "error adding medicinal product quantity")
+	ErrSubtractMedicinalProduct      = NewDomainError(dc.Internal, "error subtracting medicinal product quantity")
+	ErrQuantityTooHigh               = NewDomainError(dc.BadRequest, "medicinal product quantity is too high")
+	ErrCreateTransaction             = NewDomainError(dc.Internal, "error creating transaction")
+	ErrCommitTransaction             = NewDomainError(dc.Internal, "error committing transaction")
+	ErrIncorrectPathParam            = NewDomainError(dc.BadRequest, "incorrect path param")
 )
 
 type DomainError struct {

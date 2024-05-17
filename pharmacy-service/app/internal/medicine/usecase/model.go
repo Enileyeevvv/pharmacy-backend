@@ -13,6 +13,8 @@ type MedicinalProduct struct {
 	Quantity                int
 	MaxQuantity             int
 	ImageURL                string
+	DosageFormID            int
+	DosageFormName          string
 }
 
 type Patient struct {

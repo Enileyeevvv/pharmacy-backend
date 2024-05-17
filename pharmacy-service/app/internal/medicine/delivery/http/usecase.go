@@ -24,4 +24,5 @@ type UseCase interface {
 		ctx context.Context,
 		limit, offset, pID int,
 	) ([]usecase.PrescriptionHistory, bool, *de.DomainError)
+	AddMedicinalProduct(ctx context.Context, mpID, quantity int) *de.DomainError
 }

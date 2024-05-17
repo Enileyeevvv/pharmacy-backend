@@ -34,34 +34,7 @@ func (u *UseCase) FetchMedicinalProducts(
 }
 
 func (u *UseCase) CreateMedicinalProduct(ctx context.Context, medicine MedicinalProduct) *de.DomainError {
-	mpID, err := u.pgAdp.CheckMedicinalProductExists(ctx, medicine)
-	if err != nil {
-		return err
-	}
-
-	cID, err := u.pgAdp.CheckCompanyExists(ctx, medicine)
-	if err != nil {
-		return err
-	}
-
-	if mpID == -1 {
-		mpID, err = u.pgAdp.CreateMedicinalProduct(ctx, medicine)
-		if err != nil {
-			return err
-		}
-	}
-
-	if cID == -1 {
-		cID, err = u.pgAdp.CreateCompany(ctx, medicine)
-		if err != nil {
-			return err
-		}
-	}
-
-	medicine.ID = mpID
-	medicine.CompanyID = cID
-
-	return u.pgAdp.UpsertMedicinalProductCompany(ctx, medicine)
+	return u.pgAdp.CreateMedicinalProductTransaction(ctx, medicine)
 }
 
 func (u *UseCase) FetchPatients(
@@ -122,11 +95,11 @@ func (u *UseCase) GetPrescription(ctx context.Context, id int) (Prescription, *d
 }
 
 func (u *UseCase) CreatePrescription(ctx context.Context, p Prescription) *de.DomainError {
-	return u.pgAdp.CreatePrescription(ctx, p)
+	return u.pgAdp.CreatePrescriptionTransaction(ctx, p)
 }
 
 func (u *UseCase) CheckoutPrescription(ctx context.Context, p Prescription) *de.DomainError {
-	return u.pgAdp.CheckoutPrescription(ctx, p.ID, *p.PharmacistID, p.StatusID)
+	return u.pgAdp.CheckoutPrescriptionTransaction(ctx, p)
 }
 
 func (u *UseCase) FetchPrescriptionHistory(
@@ -145,4 +118,8 @@ func (u *UseCase) FetchPrescriptionHistory(
 	}
 
 	return ps, hasNext, nil
+}
+
+func (u *UseCase) AddMedicinalProduct(ctx context.Context, mpID, quantity int) *de.DomainError {
+	return u.pgAdp.AddMedicinalProductTransaction(ctx, mpID, quantity)
 }
