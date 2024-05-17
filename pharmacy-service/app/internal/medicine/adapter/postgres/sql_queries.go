@@ -15,7 +15,7 @@ const (
 			   c.name as company_name,
 			   mpc.image_url as image_url
 			   df.id as dosage_form_id,
-			   df.name as dosage_form_name,
+			   df.name as dosage_form_name
 	
 		from medicinal_product_company mpc
 			left join medicinal_products mp
@@ -44,7 +44,7 @@ const (
 			   c.name as company_name,
 			   mpc.image_url as image_url,
 			   df.id as dosage_form_id,
-			   df.name as dosage_form_name,
+			   df.name as dosage_form_name
 	
 		from medicinal_product_company mpc
 			left join medicinal_products mp
