@@ -513,7 +513,7 @@ func (a *adapter) subtractMedicinalProduct(
 	quantity int,
 ) *de.DomainError {
 	if mp.Quantity-quantity < 0 {
-		return de.ErrQuantityTooHigh.WithParams("max", mp.MaxQuantity)
+		return de.ErrQuantityTooHigh.WithParams("max", mp.Quantity)
 	}
 
 	_, err := tx.ExecContext(ctx, querySubtractMedicinalProduct, mp.ID, quantity)
