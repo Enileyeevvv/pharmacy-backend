@@ -16,8 +16,9 @@ func MapCreateMedicinalProductRequest(req CreateMedicinalProductRequest) usecase
 
 		PharmaceuticalGroupID: req.PharmaceuticalGroupID,
 
-		CompanyName: req.CompanyName,
-		ImageURL:    req.ImageURL,
+		CompanyName:  req.CompanyName,
+		ImageURL:     req.ImageURL,
+		DosageFormID: req.DosageFormID,
 	}
 }
 
