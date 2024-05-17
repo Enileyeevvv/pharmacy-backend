@@ -38,6 +38,8 @@ func MapFetchMedicinalProductsResponse(mps []usecase.MedicinalProduct, hasNext b
 				Quantity:                mp.Quantity,
 				MaxQuantity:             mp.MaxQuantity,
 				ImageURL:                mp.ImageURL,
+				DosageFormID:            mp.DosageFormID,
+				DosageFormName:          mp.DosageFormName,
 			}
 
 			mpsData = append(mpsData, mpEntry)
