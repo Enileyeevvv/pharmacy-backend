@@ -13,7 +13,7 @@ const (
 			   mp.max_quantity as max_quantity,
 			   c.id as company_id,
 			   c.name as company_name,
-			   mpc.image_url as image_url
+			   mpc.image_url as image_url,
 			   df.id as dosage_form_id,
 			   df.name as dosage_form_name
 	
